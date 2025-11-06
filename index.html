@@ -1,0 +1,299 @@
+<!-- login page -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COMPASS - Secure Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #000000;
+            overflow: hidden; /* Hide scrollbars caused by floating elements */
+        }
+
+        /* ------------------- ANIMATIONS ------------------- */
+        @keyframes float {
+            0% { transform: translate(0, 0) rotate(0deg); opacity: 0.8; }
+            50% { transform: translate(20px, 30px) rotate(5deg); opacity: 0.6; }
+            100% { transform: translate(0, 0) rotate(0deg); opacity: 0.8; }
+        }
+
+        @keyframes move {
+            0% { transform: translateY(0); opacity: 0; }
+            20% { opacity: 1; }
+            100% { transform: translateY(-100vh); opacity: 0; }
+        }
+
+        @keyframes logo-spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes pulse-glow {
+            0% { box-shadow: 0 0 5px #00FFFF, 0 0 10px #00FFFF; }
+            50% { box-shadow: 0 0 20px #00FFFF, 0 0 30px #00FFFF; }
+            100% { box-shadow: 0 0 5px #00FFFF, 0 0 10px #00FFFF; }
+        }
+
+        @keyframes welcome-fade-in {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes shake-error {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }
+            20%, 40%, 60%, 80% { transform: translateX(10px); }
+        }
+
+        .animated-symbol {
+            position: absolute;
+            color: rgba(0, 255, 255, 0.2); /* Neon Cyan */
+            font-size: 30px;
+            pointer-events: none;
+            animation: move 20s linear infinite, float 10s ease-in-out infinite alternate;
+        }
+
+        .glassmorphism {
+            background: rgba(0, 123, 255, 0.1); /* Electric Blue Semi-transparent */
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 255, 255, 0.3); /* Neon Cyan border */
+            box-shadow: 0 0 50px rgba(0, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .logo-compass {
+            animation: logo-spin 15s linear infinite, pulse-glow 3s ease-in-out infinite;
+        }
+
+        .glowing-input:focus {
+            outline: none;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
+            border-color: #00FFFF;
+        }
+        
+        .glowing-button {
+            transition: all 0.3s;
+        }
+
+        .glowing-button:hover {
+            box-shadow: 0 0 20px #28A745, 0 0 40px #28A745; /* Medical Green Glow */
+            transform: translateY(-2px);
+        }
+
+        #welcome-screen {
+            display: none;
+            animation: welcome-fade-in 1s forwards;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 100;
+        }
+
+        #welcome-logo {
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
+
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+
+    <!-- Floating Medical Symbols Background -->
+    <div id="symbols-container" class="absolute inset-0 z-0"></div>
+
+    <!-- Welcome Animation Screen -->
+    <div id="welcome-screen" class="fixed inset-0 flex flex-col items-center justify-center">
+        <div id="welcome-logo" class="text-neon-cyan text-8xl p-8 rounded-full">
+            <svg class="w-24 h-24 text-[#00FFFF]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <!-- Compass Icon -->
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+            </svg>
+        </div>
+        <div class="text-[#00FFFF] text-5xl font-bold mt-8" style="animation: welcome-fade-in 1.5s forwards 0.5s;">
+            Welcome to COMPASS
+        </div>
+        <p class="text-[#F8F9FA] mt-4 text-xl" style="animation: welcome-fade-in 1.5s forwards 1s;">
+            Redirecting to your secured dashboard...
+        </p>
+    </div>
+
+    <!-- Login Card -->
+    <div id="login-card" class="glassmorphism p-8 md:p-10 rounded-xl w-full max-w-md z-10">
+        <div class="text-center mb-8">
+            <svg class="w-16 h-16 mx-auto text-[#00FFFF] logo-compass" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <!-- Glowing COMPASS Logo (Compass Icon) -->
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+            </svg>
+            <h1 class="text-3xl font-extrabold text-[#F8F9FA] mt-4">COMPASS</h1>
+            <p class="text-sm text-[#00FFFF] opacity-75">Medical Intelligence Platform</p>
+        </div>
+
+        <form id="login-form" onsubmit="event.preventDefault(); handleLogin();">
+            <!-- ABHA Number/Username Field -->
+            <div class="mb-4">
+                <label for="abha" class="block text-sm font-medium text-[#F8F9FA] mb-2">ABHA Number / Username</label>
+                <input type="text" id="abha" placeholder="e.g. 1234-5678-9012-3456" class="glowing-input w-full p-3 rounded-lg bg-transparent text-[#F8F9FA] border border-gray-700 transition duration-300 focus:border-[#00FFFF]">
+            </div>
+
+            <!-- Email Field -->
+            <div class="mb-4">
+                <label for="email" class="block text-sm font-medium text-[#F8F9FA] mb-2">Email (for Firebase Auth)</label>
+                <input type="email" id="email" required placeholder="your.identity@compass.med" class="glowing-input w-full p-3 rounded-lg bg-transparent text-[#F8F9FA] border border-gray-700 transition duration-300 focus:border-[#00FFFF]">
+            </div>
+
+            <!-- Password Field -->
+            <div class="mb-6 relative">
+                <label for="password" class="block text-sm font-medium text-[#F8F9FA] mb-2">Password</label>
+                <input type="password" id="password" required placeholder="••••••••" class="glowing-input w-full p-3 pr-10 rounded-lg bg-transparent text-[#F8F9FA] border border-gray-700 transition duration-300 focus:border-[#00FFFF]">
+                <button type="button" onclick="togglePasswordVisibility()" class="absolute inset-y-0 right-0 top-6 flex items-center pr-3 text-[#00FFFF] hover:text-[#28A745]">
+                    <svg id="toggle-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                </button>
+            </div>
+
+            <!-- Error Message -->
+            <div id="error-message" class="text-center text-red-500 mb-4 font-semibold hidden p-2 border border-red-500 rounded-lg bg-red-900 bg-opacity-30"></div>
+
+            <!-- Submit Button -->
+            <button type="submit" id="login-button" class="glowing-button w-full bg-[#28A745] text-white p-3 rounded-lg font-bold uppercase tracking-wider shadow-lg transition duration-300">
+                Access COMPASS
+            </button>
+        </form>
+    </div>
+
+    <!-- Firebase SDKs and Logic -->
+    <script type="module">
+        // FIX: setLogLevel is imported from firebase-app, not firebase-auth.
+        import { initializeApp, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+        // --- GLOBAL FIREBASE CONFIGURATION (Direct Keys) ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyChN0ZW9-Ut013DO2skZjg3eudSx_RSboE", 
+            authDomain: "compass-pd.firebaseapp.com",
+            projectId: "compass-pd", 
+            storageBucket: "compass-pd.firebasestorage.app", 
+            messagingSenderId: "492535344571", 
+            appId: "1:492535344571:web:51967333a12b984a91689e",
+            measurementId: "G-YG21J97H1Z"
+        };
+        
+        let app, auth;
+
+        try {
+            // Set Firebase logging level (optional, but good for debugging)
+            setLogLevel('Debug');
+            
+            app = initializeApp(firebaseConfig);
+            auth = getAuth(app);
+            
+            console.log("Firebase initialized. Ready for Email/Password login.");
+
+        } catch (e) {
+            console.error("Firebase Initialization Error:", e);
+        }
+
+        // --- GLOBAL FUNCTIONS ---
+
+        // Function to toggle password visibility
+        window.togglePasswordVisibility = function() {
+            const passwordInput = document.getElementById('password');
+            const toggleIcon = document.getElementById('toggle-icon');
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7 1.274-4.057 5.064-7 9.542-7 1.258 0 2.474.195 3.637.545M19.95 10.155A12.002 12.002 0 0012 5C7.523 5 3.732 7.943 2.458 12c1.274 4.057 5.064 7 9.542 7a12.002 12.002 0 007.978-2.195m0 0l-1.39-1.39m1.39 1.39l-1.39 1.39M18 14l-4 4m0-4l4 4"></path>`; // Closed eye
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>`; // Open eye
+            }
+        }
+
+        // Function to handle login
+        window.handleLogin = async function() {
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const errorElement = document.getElementById('error-message');
+            const loginCard = document.getElementById('login-card');
+            const welcomeScreen = document.getElementById('welcome-screen');
+
+            errorElement.classList.add('hidden');
+            loginCard.style.animation = 'none'; // Clear shake animation
+
+            if (!email || !password) {
+                errorElement.textContent = "Please enter both email and password.";
+                errorElement.classList.remove('hidden');
+                loginCard.style.animation = 'shake-error 0.5s ease-in-out';
+                return;
+            }
+
+            try {
+                // Firebase Login attempt
+                await signInWithEmailAndPassword(auth, email, password);
+
+                // --- SUCCESS ---
+                document.getElementById('login-form').classList.add('hidden');
+                loginCard.classList.add('hidden');
+                welcomeScreen.style.display = 'flex';
+                
+                // Redirect after 3 seconds
+                setTimeout(() => {
+                    // FIX: Use replace() with explicit relative path './' for robustness
+                    window.location.replace('./home.html');
+                }, 3000);
+
+            } catch (error) {
+                // --- FAILURE ---
+                console.error("Login Error:", error.code, error.message);
+                
+                let errorMessage = "Login failed. Please check your credentials.";
+                if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+                    errorMessage = "Invalid email or password.";
+                } else if (error.code === 'auth/invalid-email') {
+                    errorMessage = "The email address format is invalid.";
+                }
+                
+                errorElement.textContent = errorMessage;
+                errorElement.classList.remove('hidden');
+                
+                // Add red glowing border and shake effect
+                loginCard.style.border = '1px solid #FF0000';
+                loginCard.style.boxShadow = '0 0 25px rgba(255, 0, 0, 0.5)';
+                loginCard.style.animation = 'shake-error 0.5s ease-in-out';
+                
+                setTimeout(() => {
+                    loginCard.style.border = '1px solid rgba(0, 255, 255, 0.3)';
+                    loginCard.style.boxShadow = '0 0 50px rgba(0, 255, 255, 0.2)';
+                    loginCard.style.animation = 'none';
+                }, 1000);
+            }
+        };
+
+        // --- BACKGROUND GENERATION ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const symbolsContainer = document.getElementById('symbols-container');
+            const symbols = [
+                `<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M12 20.001v-8M12 20.001v-8"></path></svg>`, // Stethoscope (simple representation)
+                `<svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm0 15a1 1 0 01-1-1v-3H8a1 1 0 010-2h3V8a1 1 0 012 0v3h3a1 1 0 010 2h-3v3a1 1 0 01-1 1z"/></svg>`, // Cross
+                `<svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.18C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>`, // Heart
+                `<svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V5a2 2 0 00-2-2zM7 5h10v14H7V5zm2 2h6v2H9V7zm0 4h6v2H9v-2zm0 4h4v2H9v-2z"/></svg>` // Capsule (pill)
+            ];
+
+            for (let i = 0; i < 30; i++) {
+                const symbol = document.createElement('div');
+                symbol.className = 'animated-symbol';
+                symbol.innerHTML = symbols[Math.floor(Math.random() * symbols.length)];
+                
+                const size = Math.random() * 20 + 20; // 20px to 40px
+                symbol.style.fontSize = `${size}px`;
+                symbol.style.left = `${Math.random() * 100}vw`;
+                symbol.style.top = `${Math.random() * 100}vh`;
+                symbol.style.animationDelay = `${Math.random() * 20}s`; // Stagger the start times
+                symbol.style.animationDuration = `${Math.random() * 15 + 15}s`; // Vary speed
+
+                symbolsContainer.appendChild(symbol);
+            }
+        });
+
+    </script>
+</body>
+</html>

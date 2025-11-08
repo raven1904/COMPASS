@@ -4,17 +4,164 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RPM Compliance Coach</title>
-    <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Load Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
-    <!-- Confetti library for celebrations -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+    <style>
+        /* New Custom Colors */
+        .bg-soft-mint-white { background-color: #F4F9F9; }
+        .text-dark-navy { color: #2E3A59; }
+        .bg-teal-green-primary { background-color: #00BFA6; }
+        .hover\:bg-teal-green-dark:hover { background-color: #009985; }
+        .text-warm-yellow { color: #FFD166; }
+        .bg-soft-red-critical { background-color: #FF6B6B; }
+        .hover\:bg-soft-red-dark:hover { background-color: #CC5555; }
+        
+        /* General High-Contrast/Vibrant Styling */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F4F9F9; /* Soft mint white */
+            padding-top: 100px; /* Adjusted for smaller, modern header */
+            padding-bottom: 90px;
+            line-height: 1.6;
+        }
+        .card {
+            background-color: #ffffff;
+            border: 1px solid #e0f2f1;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1); /* Lighter shadow */
+            transition: all 0.3s;
+            border-radius: 1.5rem;
+        }
+        .card:hover {
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+            transform: translateY(-2px);
+        }
+        
+        /* Page Control & Transition */
+        .page {
+            display: none;
+            padding: 1rem;
+            min-height: calc(100vh - 190px);
+        }
+        .page.active {
+            display: block;
+            animation: slideInUp 0.6s ease-out forwards;
+        }
+        @keyframes slideInUp {
+            from { opacity: 0; transform: translateY(10%); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Fixed Header Styles */
+        #fixed-header {
+            z-index: 50;
+            background-color: #00BFA6; /* Teal Green Primary */
+            color: white;
+            padding: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Fixed Navbar Styles */
+        #bottom-nav {
+            background-color: #ffffff;
+            border-top: 2px solid #e0f2f1;
+            box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.05);
+            z-index: 60;
+            height: 80px;
+        }
+        .nav-item {
+            color: #2E3A59; /* Dark Navy */
+            transition: color 0.3s, transform 0.2s;
+            min-width: 20%;
+        }
+        .nav-item.active {
+            color: #FFD166; /* Warm Yellow Accent */
+            font-weight: bold;
+            transform: scale(1.1);
+        }
+
+        /* Central Alert Button */
+        #alert-center-btn-wrapper {
+            position: relative;
+            top: -25px; /* Moved up a bit */
+            z-index: 70;
+        }
+        #alert-center-btn {
+            background-color: #FF6B6B; /* Soft Red Critical */
+            transition: all 0.1s;
+            box-shadow: 0 0 20px rgba(255, 107, 107, 0.7);
+            border: 6px solid #fca5a5;
+        }
+        .alert-active-pulse {
+            animation: pulse-red 1.5s infinite; /* Adjusted speed */
+        }
+        @keyframes pulse-red {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 0 10px rgba(255, 107, 107, 0.7);
+            }
+            50% {
+                transform: scale(1.1);
+                box-shadow: 0 0 25px rgba(255, 107, 107, 1);
+            }
+        }
+        
+        /* Custom Button & Animation Styles */
+        .primary-btn {
+            @apply text-dark-navy font-bold py-3 px-4 rounded-xl transition-all duration-300 transform hover:scale-105 active:scale-95 bg-warm-yellow hover:bg-yellow-400;
+        }
+
+        @keyframes pulse-soft {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .animate-pulse-soft { animation: pulse-soft 2s infinite; }
+        
+        /* Activity Icon Ripple (Motivation) */
+        .ripple-icon {
+            position: relative;
+        }
+        .ripple-icon::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100%;
+            height: 100%;
+            background-color: currentColor;
+            border-radius: 50%;
+            opacity: 0;
+            transform: translate(-50%, -50%);
+            animation: ripple 2s infinite ease-out;
+        }
+        @keyframes ripple {
+            0% { width: 0; height: 0; opacity: 0.5; }
+            100% { width: 150%; height: 150%; opacity: 0; }
+        }
+        .ripple-icon.delay::before { animation-delay: 1s; }
+
+
+        /* Task done animation */
+        .task-done {
+            transition: all 0.5s ease-in-out;
+            background-color: #f1fff1 !important; /* Lighter green */
+            border-color: #00BFA6 !important;
+            color: #00BFA6 !important;
+        }
+    </style>
     <script>
         // Configure Tailwind
         tailwind.config = {
             theme: {
                 extend: {
+                    colors: {
+                        'soft-mint-white': '#F4F9F9',
+                        'teal-green-primary': '#00BFA6',
+                        'warm-yellow': '#FFD166',
+                        'soft-red-critical': '#FF6B6B',
+                        'dark-navy': '#2E3A59',
+                    },
                     animation: {
                         'spin-slow': 'spin 3s linear infinite',
                         'ping-slow': 'ping 2s cubic-bezier(0, 0, 0.2, 1) infinite',
@@ -31,15 +178,15 @@
                         },
                         float: {
                             '0%, 100%': { transform: 'translateY(0)' },
-                            '50%': { transform: 'translateY(-10px)' },
+                            '50%': { transform: 'translateY(-5px)' }, /* Reduced float for subtlety */
                         },
                         wiggle: {
                             '0%, 100%': { transform: 'rotate(-3deg)' },
                             '50%': { transform: 'rotate(3deg)' },
                         },
                         pulseGlow: {
-                            '0%, 100%': { boxShadow: '0 0 5px rgba(59, 130, 246, 0.5)' },
-                            '50%': { boxShadow: '0 0 20px rgba(59, 130, 246, 0.8)' },
+                            '0%, 100%': { boxShadow: '0 0 5px rgba(0, 191, 166, 0.5)' },
+                            '50%': { boxShadow: '0 0 20px rgba(0, 191, 166, 0.8)' },
                         }
                     }
                 }
@@ -59,266 +206,205 @@
         };
         document.addEventListener('DOMContentLoaded', window.createLucideIcons);
     </script>
-    <style>
-        /* General High-Contrast/Vibrant Styling */
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f0fdfa;
-            padding-top: 150px;
-            padding-bottom: 90px;
-            line-height: 1.6;
-        }
-        .card {
-            background-color: #ffffff;
-            border: 1px solid #e0f2f1;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            transition: all 0.3s;
-            border-radius: 1.5rem;
-        }
-        .card:hover {
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-            transform: translateY(-2px);
-        }
-        /* Page Control */
-        .page {
-            display: none;
-            padding: 1rem;
-            min-height: calc(100vh - 240px);
-        }
-        .page.active {
-            display: block;
-            animation: fadeIn 0.5s ease-out;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0.5; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Fixed Header Styles */
-        #fixed-header {
-            z-index: 50;
-            background-color: #0d9488;
-            color: white;
-            padding: 1rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
-
-        /* Fixed Navbar Styles */
-        #bottom-nav {
-            background-color: #ffffff;
-            border-top: 2px solid #e0f2f1;
-            box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.05);
-            z-index: 60;
-            height: 80px;
-        }
-        .nav-item {
-            color: #4b5563;
-            transition: color 0.3s, transform 0.2s;
-            min-width: 20%;
-        }
-        .nav-item.active {
-            color: #f97316;
-            font-weight: bold;
-            transform: scale(1.1);
-        }
-
-        /* Central Alert Button */
-        #alert-center-btn-wrapper {
-            position: relative;
-            top: -20px;
-            z-index: 70;
-        }
-        #alert-center-btn {
-            background-color: #dc2626;
-            transition: all 0.1s;
-            box-shadow: 0 0 20px rgba(220, 38, 38, 0.7);
-            border: 6px solid #fca5a5;
-        }
-        .alert-active-pulse {
-            animation: pulse-red 1s infinite;
-        }
-        @keyframes pulse-red {
-            0%, 100% {
-                transform: scale(1);
-                box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
-            }
-            50% {
-                transform: scale(1.1);
-                box-shadow: 0 0 25px rgba(255, 0, 0, 1);
-            }
-        }
-        
-        /* Custom button styles */
-        .primary-btn {
-            @apply text-white font-bold py-3 px-4 rounded-xl transition-all duration-300 transform hover:scale-105 active:scale-95;
-        }
-        
-        /* Chart bar animations */
-        .chart-bar {
-            transition: all 0.5s ease-out;
-        }
-        
-        /* Input focus styles */
-        input:focus, textarea:focus {
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.2);
-        }
-        
-        /* Celebration animation */
-        .celebration {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 100;
-        }
-        
-        /* Badge animation */
-        .badge-earned {
-            animation: badgePop 0.8s ease-out;
-        }
-        
-        @keyframes badgePop {
-            0% { transform: scale(0); }
-            70% { transform: scale(1.2); }
-            100% { transform: scale(1); }
-        }
-        
-        /* Achievement celebration */
-        .achievement-popup {
-            animation: achievementSlide 0.5s ease-out;
-        }
-        
-        @keyframes achievementSlide {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-    </style>
 </head>
 <body>
 
-    <!-- FIXED TOP HEADER -->
-    <header id="fixed-header" class="fixed top-0 left-0 right-0">
-        <div class="max-w-7xl mx-auto flex items-center justify-between">
-            <!-- Logo & User Info -->
+    <header id="fixed-header" class="fixed top-0 left-0 right-0 h-24 flex items-center">
+        <div class="max-w-4xl mx-auto flex items-center justify-between w-full px-4">
             <div class="flex items-center space-x-4">
-                <i data-lucide="compass" class="w-10 h-10 text-orange-300 animate-spin-slow"></i>
+                <i data-lucide="compass" class="w-8 h-8 text-warm-yellow animate-spin-slow"></i>
                 <div>
-                    <p class="text-lg font-bold">Hello, <span id="header-user-name">John Doe</span></p>
-                    <p class="text-sm text-teal-200 flex items-center">
-                        <i data-lucide="heart" class="w-4 h-4 mr-1"></i> HR: <span id="hr-display">72</span> bpm
+                    <p class="text-xl font-bold">Hello, <span id="header-user-name">John Doe</span></p>
+                    <p class="text-sm text-white flex items-center opacity-80">
+                        <i data-lucide="sun" class="w-4 h-4 mr-1"></i> Good Morning!
+                    </p>
+                </div>
+            </div>
+            <button onclick="changePage('settings', document.querySelector('#bottom-nav button:last-child'))" class="p-2 rounded-full hover:bg-teal-green-dark transition">
+                 <i data-lucide="user" class="w-6 h-6 text-warm-yellow"></i>
+            </button>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto pt-4">
+
+        <div id="page-home" class="page active">
+            
+            <div class="flex justify-around items-center mb-6 card p-4 bg-white shadow-xl">
+                <button onclick="handleAlertHoldStart(event); setTimeout(() => handleAlertHoldEnd(event), 3000);" class="flex flex-col items-center nav-item transform hover:scale-110 active:scale-95 transition-all">
+                    <i data-lucide="siren" class="w-8 h-8 text-soft-red-critical animate-pulse-soft"></i>
+                    <span class="text-xs font-semibold text-soft-red-critical mt-1">SOS</span>
+                </button>
+                <button onclick="triggerSmartAlert('doctor', 'Secure daily report: Compliance score ${calculateHealthScore()}%.');" class="flex flex-col items-center nav-item transform hover:scale-110 active:scale-95 transition-all">
+                    <i data-lucide="phone-call" class="w-8 h-8 text-dark-navy hover:text-teal-green-primary"></i>
+                    <span class="text-xs font-semibold text-dark-navy mt-1">Call Doctor</span>
+                </button>
+                <button onclick="changePage('settings', document.querySelector('#bottom-nav button:last-child'))" class="flex flex-col items-center nav-item transform hover:scale-110 active:scale-95 transition-all">
+                    <i data-lucide="file-text" class="w-8 h-8 text-dark-navy hover:text-teal-green-primary"></i>
+                    <span class="text-xs font-semibold text-dark-navy mt-1">Reports</span>
+                </button>
+                <button onclick="changePage('todo', document.querySelector('#bottom-nav button:nth-child(2)'))" class="flex flex-col items-center nav-item transform hover:scale-110 active:scale-95 transition-all">
+                    <i data-lucide="list-checks" class="w-8 h-8 text-dark-navy hover:text-teal-green-primary"></i>
+                    <span class="text-xs font-semibold text-dark-navy mt-1">To-Do List</span>
+                </button>
+            </div>
+            
+            <div class="card p-6 mb-6 bg-gradient-to-r from-soft-mint-white to-white border-l-8 border-warm-yellow" id="medication-tracker-card">
+                <h3 class="text-xl font-bold text-dark-navy mb-3 flex items-center">
+                    <i data-lucide="pill" class="w-6 h-6 mr-2 text-warm-yellow"></i> Medication Tracker
+                </h3>
+                <div class="flex items-center justify-between">
+                    <div class="relative w-20 h-20">
+                        <svg class="w-full h-full" viewBox="0 0 100 100">
+                            <circle class="text-gray-200" stroke-width="10" stroke="currentColor" fill="transparent" r="40" cx="50" cy="50"/>
+                            <circle id="med-progress-ring" class="text-teal-green-primary transition-all duration-1000 ease-out" stroke-width="10" stroke-dasharray="251.2" stroke-dashoffset="75.36" stroke-linecap="round" stroke="currentColor" fill="transparent" r="40" cx="50" cy="50" transform="rotate(-90 50 50)"/>
+                            <text id="med-progress-text" x="50" y="55" font-size="20" text-anchor="middle" class="font-bold text-dark-navy">70%</text>
+                        </svg>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-3xl font-extrabold text-teal-green-primary" id="doses-taken-display">2/3</p>
+                        <p class="text-sm text-gray-600">Doses Taken Today</p>
+                    </div>
+                </div>
+                <div class="mt-4 p-3 rounded-lg border border-warm-yellow bg-yellow-50 animate-pulse-soft">
+                    <p class="font-semibold text-sm text-gray-800 flex items-center">
+                        <i data-lucide="clock" class="w-4 h-4 mr-2 text-warm-yellow"></i> Next Dose: <span id="next-med-display-home" class="ml-1 font-bold">Aspirin at 8:00 PM</span>
                     </p>
                 </div>
             </div>
 
-            <!-- Vitals Quick View -->
-            <div class="flex space-x-4 text-sm font-semibold">
-                <div class="text-center">
-                    <i data-lucide="droplet" class="w-5 h-5 mx-auto"></i>
-                    <p>BG: <span id="bg-display">110</span></p>
+            <div id="health-summary-card" class="card p-6 mb-6 bg-gradient-to-tr from-white to-soft-mint-white">
+                <h3 class="text-xl font-bold text-dark-navy mb-3 flex items-center">
+                    <i data-lucide="heart-pulse" class="w-6 h-6 mr-2 text-soft-red-critical animate-pulse-soft"></i> Live Vitals Overview
+                </h3>
+                <div class="grid grid-cols-2 gap-4 text-dark-navy text-lg font-semibold">
+                    <div id="vitals-hr" class="p-3 rounded-lg flex items-center space-x-2 border-l-4 border-green-500 bg-green-50">
+                        <i data-lucide="heart" class="w-5 h-5 text-green-700"></i>
+                        <span>HR: <span id="hr-display-home">72</span> bpm</span>
+                    </div>
+                    <div id="vitals-bp" class="p-3 rounded-lg flex items-center space-x-2 border-l-4 border-yellow-500 bg-yellow-50">
+                        <i data-lucide="thermometer-half" class="w-5 h-5 text-yellow-700"></i>
+                        <span>BP: <span id="bp-display-home">120/80</span> mmHg</span>
+                    </div>
+                    <div id="vitals-bg" class="p-3 rounded-lg flex items-center space-x-2 border-l-4 border-green-500 bg-green-50">
+                        <i data-lucide="droplet" class="w-5 h-5 text-green-700"></i>
+                        <span>Glucose: <span id="bg-display-home">110</span> mg/dL</span>
+                    </div>
+                    <div id="vitals-spo2" class="p-3 rounded-lg flex items-center space-x-2 border-l-4 border-green-500 bg-green-50">
+                        <i data-lucide="wind" class="w-5 h-5 text-green-700"></i>
+                        <span>SpO2: <span id="spo2-display-home">97</span>%</span>
+                    </div>
                 </div>
-                <div class="text-center">
-                    <i data-lucide="thermometer" class="w-5 h-5 mx-auto"></i>
-                    <p>BP: <span id="bp-display">120/80</span></p>
-                </div>
-                <div class="text-center">
-                    <i data-lucide="wind" class="w-5 h-5 mx-auto"></i>
-                    <p>SpO2: <span id="spo2-display">97</span></p>
-                </div>
             </div>
-        </div>
-
-        <!-- Medication & Connectivity Report -->
-        <div class="max-w-7xl mx-auto mt-3 pt-3 border-t border-teal-600 flex justify-between text-sm">
-            <div class="w-1/2 pr-2">
-                <p class="font-bold text-teal-200">Next Dose:</p>
-                <p id="next-med-display" class="text-yellow-200">Aspirin at 8:00 PM</p>
-            </div>
-            <div class="w-1/2 pl-2 border-l border-teal-600 flex items-center justify-end space-x-2">
-                <p class="font-bold text-teal-200">Team:</p>
-                <i data-lucide="user-check" class="w-5 h-5 text-green-300" title="Doctor Connected"></i>
-                <i data-lucide="users-2" class="w-5 h-5 text-orange-300" title="Relatives Alerted"></i>
-            </div>
-        </div>
-    </header>
-
-    <!-- Celebration Container -->
-    <div id="celebration-container" class="celebration"></div>
-
-    <!-- Achievement Popup -->
-    <div id="achievement-popup" class="fixed top-20 right-4 bg-white p-4 rounded-xl shadow-2xl z-50 hidden achievement-popup">
-        <div class="flex items-center space-x-3">
-            <i data-lucide="award" class="w-8 h-8 text-yellow-500"></i>
-            <div>
-                <p class="font-bold text-lg">Achievement Unlocked!</p>
-                <p id="achievement-text" class="text-gray-600">New badge earned</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- MAIN CONTENT AREA -->
-    <main class="max-w-4xl mx-auto pt-4">
-
-        <!-- 1. HOME PAGE -->
-        <div id="page-home" class="page active">
-            <h2 class="text-3xl font-bold text-teal-700 mb-5">
-                <i data-lucide="home" class="w-8 h-8 mr-2 text-orange-500 inline-block"></i> Dashboard
-            </h2>
-
-            <!-- Compliance Score Card -->
-            <div id="health-score-card" class="card p-8 flex flex-col items-center justify-center text-center bg-gradient-to-br from-teal-50 to-white min-h-[200px] mb-6">
-                <div class="relative w-40 h-40 rounded-full flex flex-col items-center justify-center font-extrabold text-white text-4xl shadow-2xl border-8 border-teal-300 bg-teal-500 transition-all duration-500">
-                    <i data-lucide="heart-pulse" class="absolute w-12 h-12 opacity-30 animate-ping-slow"></i>
-                    <span id="score-display">--</span>
-                </div>
-                <h3 class="text-3xl mt-4 font-bold text-teal-800">Compliance Score</h3>
-                <p id="score-message" class="text-lg text-gray-600">You're doing great!</p>
-            </div>
-
-            <!-- Past 2 Days Medication Report -->
+            
             <div class="card p-6 mb-6">
-                <h3 class="text-2xl font-bold text-teal-700 mb-3 flex items-center">
-                    <i data-lucide="history" class="w-6 h-6 mr-2 text-blue-500"></i> Past 2-Day Medication Log
+                 <h3 class="text-xl font-bold text-dark-navy mb-4 flex items-center">
+                    <i data-lucide="footprints" class="w-6 h-6 mr-2 text-teal-green-primary"></i> Daily Activity
                 </h3>
-                <div id="med-log-display" class="space-y-2 text-lg">
-                    <!-- Medication log will be populated here -->
+                <div class="grid grid-cols-3 gap-4 text-center">
+                    <div class="flex flex-col items-center">
+                        <div class="p-3 rounded-full bg-teal-green-primary text-white mb-2 ripple-icon">
+                            <i data-lucide="shoe" class="w-6 h-6"></i>
+                        </div>
+                        <p class="text-lg font-bold text-dark-navy">4,356</p>
+                        <p class="text-xs text-gray-500">Steps</p>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <div class="p-3 rounded-full bg-blue-500 text-white mb-2 ripple-icon delay">
+                            <i data-lucide="droplets" class="w-6 h-6"></i>
+                        </div>
+                        <p class="text-lg font-bold text-dark-navy">6/8</p>
+                        <p class="text-xs text-gray-500">Water (glasses)</p>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <div class="p-3 rounded-full bg-purple-500 text-white mb-2 ripple-icon">
+                            <i data-lucide="moon" class="w-6 h-6"></i>
+                        </div>
+                        <p class="text-lg font-bold text-dark-navy">7.2 hrs</p>
+                        <p class="text-xs text-gray-500">Sleep</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="alerts-container" class="space-y-3">
+                 <div class="card p-4 bg-soft-red-critical text-white flex items-center space-x-3 animate-wiggle">
+                    <i data-lucide="bell" class="w-6 h-6 flex-shrink-0"></i>
+                    <p class="font-semibold">ALERT: BP reading slightly high. Please recheck in 30 mins.</p>
+                </div>
+                <div class="card p-4 bg-warm-yellow text-dark-navy flex items-center space-x-3">
+                    <i data-lucide="calendar-check" class="w-6 h-6 flex-shrink-0"></i>
+                    <p class="font-semibold">Gentle Reminder: Doctor visit tomorrow at 10 AM.</p>
                 </div>
             </div>
 
-            <!-- Vitals Input Form -->
-            <div class="card p-6 bg-teal-50">
-                <h3 class="text-2xl font-bold text-teal-700 mb-3 flex items-center">
-                    <i data-lucide="hand" class="w-6 h-6 mr-2 text-orange-500"></i> Enter Today's Vitals
-                </h3>
+            <div class="card p-6 bg-soft-mint-white mt-6 hidden">
                 <form id="vitals-form" class="space-y-4">
-                    <input type="number" id="input-hr" placeholder="Heart Rate (bpm)" class="w-full p-3 border-2 border-teal-300 rounded-lg text-lg focus:ring-teal-500 focus:border-teal-500">
-                    <input type="text" id="input-bp" placeholder="BP (e.g., 120/80)" class="w-full p-3 border-2 border-teal-300 rounded-lg text-lg focus:ring-teal-500 focus:border-teal-500">
-                    <input type="number" id="input-bg" placeholder="Blood Glucose (mg/dL)" class="w-full p-3 border-2 border-teal-300 rounded-lg text-lg focus:ring-teal-500 focus:border-teal-500">
-                    <input type="number" id="input-spo2" placeholder="SpO2 (%)" class="w-full p-3 border-2 border-teal-300 rounded-lg text-lg focus:ring-teal-500 focus:border-teal-500">
-                    <button type="submit" class="w-full primary-btn bg-green-500 hover:bg-green-600">Save Vitals</button>
+                    <input type="number" id="input-hr" placeholder="Heart Rate (bpm)">
+                    <input type="text" id="input-bp" placeholder="BP (e.g., 120/80)">
+                    <input type="number" id="input-bg" placeholder="Blood Glucose (mg/dL)">
+                    <input type="number" id="input-spo2" placeholder="SpO2 (%)">
+                    <button type="submit">Save Vitals</button>
                 </form>
             </div>
         </div>
 
-        <!-- 2. TO-DO LIST PAGE -->
         <div id="page-todo" class="page">
-            <h2 class="text-3xl font-bold text-teal-700 mb-5">
-                <i data-lucide="list-checks" class="w-8 h-8 mr-2 text-orange-500 inline-block"></i> Daily Checklist
-            </h2>
-            <div id="task-list" class="space-y-4">
-                <!-- Tasks will be injected here by JavaScript -->
-            </div>
-        </div>
-
-        <!-- 3. PROGRESS GAME PAGE -->
-        <div id="page-progress" class="page text-center">
-            <h2 class="text-3xl font-bold text-teal-700 mb-5">
-                <i data-lucide="trophy" class="w-8 h-8 mr-2 text-orange-500 inline-block"></i> Your Progress
+            
+            <h2 class="text-3xl font-bold text-dark-navy mb-5 flex items-center">
+                <i data-lucide="heart" class="w-8 h-8 mr-2 text-soft-red-critical inline-block animate-pulse-soft"></i> My Health Tasks Today
             </h2>
             
-            <!-- Streak Counter -->
+            <div class="card p-4 mb-6 bg-soft-mint-white">
+                 <h3 class="text-xl font-bold text-dark-navy mb-3">➕ Add New Task</h3>
+                 <form id="add-task-form" class="space-y-3">
+                     <input type="text" id="new-task-title" placeholder="Task Title (e.g., Take BP Pill)" class="w-full p-3 border-2 border-teal-green-primary rounded-lg text-lg focus:ring-teal-green-primary focus:border-teal-green-primary">
+                     <div class="grid grid-cols-2 gap-3">
+                         <input type="time" id="new-task-time" class="w-full p-3 border-2 border-teal-green-primary rounded-lg text-lg focus:ring-teal-green-primary focus:border-teal-green-primary">
+                         <select id="new-task-type" class="w-full p-3 border-2 border-teal-green-primary rounded-lg text-lg focus:ring-teal-green-primary focus:border-teal-green-primary bg-white">
+                             <option value="Pill">Medication</option>
+                             <option value="Footprints">Exercise</option>
+                             <option value="Droplets">Hydration</option>
+                             <option value="Activity">Vitals Check</option>
+                             <option value="NotebookPen">Other</option>
+                         </select>
+                     </div>
+                     <button type="submit" class="w-full bg-teal-green-primary hover:bg-teal-green-dark text-white font-bold py-3 rounded-xl transition-all duration-300 transform hover:scale-105 active:scale-95 animate-pulse-glow">
+                         <i data-lucide="plus" class="w-5 h-5 inline-block mr-2"></i> Add Task
+                     </button>
+                 </form>
+            </div>
+
+            <div id="task-list" class="space-y-4">
+                </div>
+            
+             <div class="card p-4 mt-6 bg-yellow-50 border-t-4 border-warm-yellow">
+                <h3 class="text-xl font-bold text-dark-navy mb-3">📅 Tomorrow's Preview</h3>
+                <div id="tomorrow-preview" class="flex overflow-x-auto space-x-4">
+                     <div class="p-3 bg-white border border-gray-200 rounded-lg flex-shrink-0 w-40 text-center">
+                        <i data-lucide="clock" class="w-5 h-5 text-gray-500 mx-auto"></i>
+                        <p class="text-sm font-semibold mt-1">8:00 AM</p>
+                        <p class="text-xs text-gray-600">Morning BP Check</p>
+                    </div>
+                     <div class="p-3 bg-white border border-gray-200 rounded-lg flex-shrink-0 w-40 text-center">
+                        <i data-lucide="user-check" class="w-5 h-5 text-blue-500 mx-auto"></i>
+                        <p class="text-sm font-semibold mt-1">10:00 AM</p>
+                        <p class="text-xs text-gray-600">Doctor Visit Reminder</p>
+                    </div>
+                     <div class="p-3 bg-white border border-gray-200 rounded-lg flex-shrink-0 w-40 text-center">
+                        <i data-lucide="pill" class="w-5 h-5 text-green-500 mx-auto"></i>
+                        <p class="text-sm font-semibold mt-1">1:00 PM</p>
+                        <p class="text-xs text-gray-600">Vitamin Dose Schedule</p>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+        
+        <div id="page-progress" class="page text-center">
+             <h2 class="text-3xl font-bold text-dark-navy mb-5">
+                <i data-lucide="trophy" class="w-8 h-8 mr-2 text-warm-yellow inline-block"></i> Your Progress
+            </h2>
+            
             <div class="card p-6 mb-6 bg-orange-50">
                 <div class="flex items-center justify-center space-x-4">
                     <i data-lucide="flame" class="w-10 h-10 text-orange-500"></i>
@@ -329,7 +415,6 @@
                 </div>
             </div>
             
-            <!-- Gamified Level & Progress Bar -->
             <div class="card p-6 mb-8 bg-yellow-50">
                 <p class="text-xl text-gray-600 font-semibold">Your Current Health Level:</p>
                 <div class="text-6xl font-extrabold text-teal-700 my-3 relative inline-block">
@@ -342,17 +427,14 @@
                 </div>
             </div>
             
-            <!-- Badges -->
             <div class="card p-6">
-                <h3 class="text-2xl font-bold text-teal-700 mb-4 flex items-center">
-                    <i data-lucide="award" class="w-6 h-6 mr-2 text-yellow-500"></i> Badges Earned
+                <h3 class="text-2xl font-bold text-dark-navy mb-4 flex items-center">
+                    <i data-lucide="award" class="w-6 h-6 mr-2 text-warm-yellow"></i> Badges Earned
                 </h3>
                 <div id="badges-container" class="grid grid-cols-3 sm:grid-cols-5 gap-4">
-                    <!-- Badges will be injected here by JavaScript -->
-                </div>
+                    </div>
             </div>
             
-            <!-- Level Up Animation Modal -->
             <div id="levelup-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-50 hidden" onclick="this.classList.add('hidden')">
                 <div class="bg-white p-8 rounded-3xl text-center shadow-2xl relative animate-scale-up" onclick="event.stopPropagation()">
                     <i data-lucide="star" class="w-16 h-16 text-yellow-500 mx-auto animate-spin-slow"></i>
@@ -363,43 +445,40 @@
             </div>
         </div>
 
-        <!-- 4. SETTINGS & REPORT PAGE -->
         <div id="page-settings" class="page">
-            <h2 class="text-3xl font-bold text-teal-700 mb-5">
-                <i data-lucide="settings" class="w-8 h-8 mr-2 text-orange-500 inline-block"></i> Settings & Reports
+            <h2 class="text-3xl font-bold text-dark-navy mb-5">
+                <i data-lucide="settings" class="w-8 h-8 mr-2 text-warm-yellow inline-block"></i> Settings & Reports
             </h2>
-            <div class="space-y-6">
-                <!-- Profile Settings -->
+             <div class="space-y-6">
                 <div class="card p-6">
-                    <h3 class="text-2xl font-bold text-teal-700 mb-3 flex items-center">
+                    <h3 class="text-2xl font-bold text-dark-navy mb-3 flex items-center">
                         <i data-lucide="user" class="w-6 h-6 mr-2 text-blue-500"></i> Profile Settings
                     </h3>
                     <form id="profile-form" class="space-y-4">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-gray-700 font-medium mb-2">Full Name</label>
-                                <input type="text" id="profile-name" class="w-full p-3 border-2 border-teal-300 rounded-lg text-lg focus:ring-teal-500 focus:border-teal-500">
+                                <input type="text" id="profile-name" class="w-full p-3 border-2 border-teal-300 rounded-lg text-lg focus:ring-teal-green-primary focus:border-teal-green-primary">
                             </div>
                             <div>
                                 <label class="block text-gray-700 font-medium mb-2">Date of Birth</label>
-                                <input type="date" id="profile-dob" class="w-full p-3 border-2 border-teal-300 rounded-lg text-lg focus:ring-teal-500 focus:border-teal-500">
+                                <input type="date" id="profile-dob" class="w-full p-3 border-2 border-teal-300 rounded-lg text-lg focus:ring-teal-green-primary focus:border-teal-green-primary">
                             </div>
                         </div>
                         <div>
                             <label class="block text-gray-700 font-medium mb-2">Health Conditions</label>
-                            <textarea id="profile-conditions" rows="3" class="w-full p-3 border-2 border-teal-300 rounded-lg text-lg focus:ring-teal-500 focus:border-teal-500" placeholder="List any health conditions..."></textarea>
+                            <textarea id="profile-conditions" rows="3" class="w-full p-3 border-2 border-teal-300 rounded-lg text-lg focus:ring-teal-green-primary focus:border-teal-green-primary" placeholder="List any health conditions..."></textarea>
                         </div>
                         <div>
                             <label class="block text-gray-700 font-medium mb-2">Emergency Contact</label>
-                            <input type="text" id="profile-emergency-contact" class="w-full p-3 border-2 border-teal-300 rounded-lg text-lg focus:ring-teal-500 focus:border-teal-500" placeholder="Name and phone number">
+                            <input type="text" id="profile-emergency-contact" class="w-full p-3 border-2 border-teal-300 rounded-lg text-lg focus:ring-teal-green-primary focus:border-teal-green-primary" placeholder="Name and phone number">
                         </div>
-                        <button type="submit" class="w-full primary-btn bg-teal-500 hover:bg-teal-600">Save Profile</button>
+                        <button type="submit" class="w-full bg-teal-green-primary hover:bg-teal-green-dark text-white font-bold py-3 px-4 rounded-xl transition-all duration-300 transform hover:scale-105 active:scale-95">Save Profile</button>
                     </form>
                 </div>
 
-                <!-- Connection Settings -->
-                <div class="card p-6 bg-teal-50">
-                    <h3 class="text-2xl font-bold text-teal-700 mb-3 flex items-center">
+                <div class="card p-6 bg-soft-mint-white">
+                    <h3 class="text-2xl font-bold text-dark-navy mb-3 flex items-center">
                         <i data-lucide="users" class="w-6 h-6 mr-2 text-green-500"></i> Connection Settings
                     </h3>
                     <div class="space-y-4">
@@ -409,9 +488,9 @@
                                 <div>
                                     <p class="font-semibold">Dr. Sarah Johnson</p>
                                     <p class="text-sm text-gray-500">Primary Care Physician</p>
-                                </div>
+                                }
                             </div>
-                            <button class="px-4 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors">Manage</button>
+                            <button class="px-4 py-2 bg-teal-green-primary text-white rounded-lg hover:bg-teal-green-dark transition-colors">Manage</button>
                         </div>
                         <div class="flex items-center justify-between p-3 bg-white rounded-lg border border-teal-200">
                             <div class="flex items-center space-x-3">
@@ -421,7 +500,7 @@
                                     <p class="text-sm text-gray-500">3 connected family members</p>
                                 </div>
                             </div>
-                            <button class="px-4 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors">Manage</button>
+                            <button class="px-4 py-2 bg-teal-green-primary text-white rounded-lg hover:bg-teal-green-dark transition-colors">Manage</button>
                         </div>
                         <div class="flex items-center justify-between p-3 bg-white rounded-lg border border-teal-200">
                             <div class="flex items-center space-x-3">
@@ -431,14 +510,13 @@
                                     <p class="text-sm text-gray-500">2 connected devices</p>
                                 </div>
                             </div>
-                            <button class="px-4 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors">Manage</button>
+                            <button class="px-4 py-2 bg-teal-green-primary text-white rounded-lg hover:bg-teal-green-dark transition-colors">Manage</button>
                         </div>
                     </div>
                 </div>
                 
-                <!-- ABDM Data Export -->
                 <div class="card p-6 bg-blue-50">
-                    <h3 class="text-2xl font-bold text-teal-700 mb-3 flex items-center">
+                    <h3 class="text-2xl font-bold text-dark-navy mb-3 flex items-center">
                         <i data-lucide="database" class="w-6 h-6 mr-2 text-blue-500"></i> ABDM Data Export
                     </h3>
                     <p class="text-lg text-gray-600 mb-4">Export your health data in ABDM-compatible format for sharing with healthcare providers.</p>
@@ -467,37 +545,32 @@
                     <div id="export-status" class="mt-4 text-center font-semibold text-lg"></div>
                 </div>
 
-                <!-- Trend Prediction Visualization -->
                 <div class="card p-6">
-                    <h3 class="text-2xl font-bold mb-3 text-teal-700 flex items-center">
+                    <h3 class="text-2xl font-bold mb-3 text-dark-navy flex items-center">
                         <i data-lucide="activity" class="w-6 h-6 mr-2 text-blue-500"></i> Risk Forecasting
                     </h3>
                     <p class="text-lg text-gray-600 mb-4">Risk trend based on recent data:</p>
                     
-                    <!-- Simple Bar Chart Simulation -->
                     <div id="chart-container" class="flex justify-around items-end h-48 border-b-2 border-gray-200 pt-2">
-                        <!-- Chart bars will be injected here -->
-                    </div>
+                        </div>
                     <div id="chart-labels" class="flex justify-around text-sm font-medium text-gray-500 mt-2">
-                        <!-- Labels will be injected here -->
-                    </div>
+                        </div>
                     <p id="predictive-insight" class="mt-4 p-3 bg-blue-50 border-l-4 border-blue-400 text-blue-800 text-lg font-medium">
                         <span class="font-bold">Insight:</span> Keep your adherence above 80% to maintain a low-risk status.
                     </p>
                 </div>
 
-                <!-- Report Send Controls -->
-                <div class="card p-6 bg-teal-50">
-                    <h3 class="text-2xl font-bold text-teal-700 mb-3 flex items-center">
+                <div class="card p-6 bg-soft-mint-white">
+                    <h3 class="text-2xl font-bold text-dark-navy mb-3 flex items-center">
                         <i data-lucide="send" class="w-6 h-6 mr-2 text-green-500"></i> Share Progress
                     </h3>
                     <p class="text-xl text-gray-600 mb-4">Securely share your health summary.</p>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <button id="alert-family-btn" class="w-full primary-btn bg-orange-500 hover:bg-orange-600 shadow-md flex items-center justify-center space-x-2">
+                        <button id="alert-family-btn" class="w-full primary-btn bg-warm-yellow hover:bg-yellow-400 shadow-md flex items-center justify-center space-x-2">
                             <i data-lucide="users" class="w-6 h-6"></i>
                             <span>Send to Family</span>
                         </button>
-                        <button id="alert-doctor-btn" class="w-full primary-btn bg-green-500 hover:bg-green-600 shadow-md flex items-center justify-center space-x-2">
+                        <button id="alert-doctor-btn" class="w-full primary-btn bg-teal-green-primary hover:bg-teal-green-dark text-white shadow-md flex items-center justify-center space-x-2">
                             <i data-lucide="user-check" class="w-6 h-6"></i>
                             <span>Send to Doctor</span>
                         </button>
@@ -508,7 +581,6 @@
         </div>
     </main>
 
-    <!-- FIXED BOTTOM NAV BAR -->
     <nav id="bottom-nav" class="fixed bottom-0 left-0 right-0 h-20 flex justify-around items-center">
         <button onclick="changePage('home', this)" class="nav-item flex flex-col items-center justify-center active">
             <i data-lucide="home" class="w-7 h-7"></i>
@@ -519,7 +591,6 @@
             <span class="text-xs">To Do</span>
         </button>
 
-        <!-- CENTER ALERT BUTTON -->
         <div id="alert-center-btn-wrapper" class="flex-shrink-0">
             <button id="alert-center-btn"
                     class="w-20 h-20 rounded-full flex items-center justify-center text-white text-3xl font-bold shadow-2xl transform transition duration-150"
@@ -554,21 +625,21 @@
                 emergencyContact: "Jane Doe - (555) 123-4567"
             },
             tasks: [
-                { id: 1, name: 'Take Blood Pressure', icon: 'Heart', isChecked: false, target: 120, unit: 'mmHg', time: '8:00 AM' },
-                { id: 2, name: 'Check Blood Glucose', icon: 'Clock', isChecked: false, target: 100, unit: 'mg/dL', time: '8:30 AM' },
+                { id: 1, name: 'Take Blood Pressure', icon: 'Activity', isChecked: false, target: 120, unit: 'mmHg', time: '8:00 AM' },
+                { id: 2, name: 'Check Blood Glucose', icon: 'Activity', isChecked: false, target: 100, unit: 'mg/dL', time: '8:30 AM' },
                 { id: 3, name: 'Take Morning Medication', icon: 'Pill', isChecked: false, target: 1, unit: 'pill', time: '9:00 AM' },
                 { id: 4, name: '30 min Walk/Exercise', icon: 'Footprints', isChecked: false, target: 30, unit: 'min', time: '5:00 PM' },
                 { id: 5, name: 'Take Evening Medication', icon: 'Pill', isChecked: false, target: 1, unit: 'pill', time: '8:00 PM' },
             ],
             vitals: {
                 hr: 72,
-                bp: '120/80',
-                bg: 110,
+                bp: '130/80', // Slightly high for alert demo
+                bg: 105,
                 spo2: 97
             },
             medicationHistory: [
-                { date: 'Mon', meds: ['Aspirin (AM)', 'Metformin (AM)'], nextDose: 'Aspirin (PM)' },
-                { date: 'Sun', meds: ['Aspirin (AM)', 'Metformin (AM)', 'Aspirin (PM)'], nextDose: 'Aspirin (AM)' },
+                { date: 'Mon', meds: ['Aspirin (AM)', 'Metformin (AM)'], nextDose: 'Aspirin at 8:00 PM', dosesTaken: 2, totalDoses: 3 },
+                { date: 'Sun', meds: ['Aspirin (AM)', 'Metformin (AM)', 'Aspirin (PM)'], nextDose: 'Aspirin (AM)', dosesTaken: 3, totalDoses: 3 },
             ],
             gamification: {
                 streak: 3,
@@ -598,13 +669,15 @@
             ],
             currentPage: 'home',
             lastUpdatedDate: null,
+            taskIdCounter: 6 // To ensure new tasks get unique IDs
         };
 
         let appState = {};
         let alertTimeout = null;
         const ALERT_HOLD_DURATION = 3000;
+        const alertBtn = document.getElementById('alert-center-btn');
 
-        // --- LOCAL STORAGE FUNCTIONS ---
+        // --- LOCAL STORAGE FUNCTIONS (Unchanged) ---
         const loadState = () => {
             const savedState = localStorage.getItem('rpmCoachState');
             if (savedState) {
@@ -628,7 +701,7 @@
             localStorage.setItem('rpmCoachState', JSON.stringify(appState));
         };
 
-        // --- CELEBRATION FUNCTIONS ---
+        // --- CELEBRATION FUNCTIONS (Unchanged) ---
         const triggerCelebration = (type = 'achievement') => {
             // Confetti celebration
             confetti({
@@ -665,15 +738,18 @@
                 achievementText.textContent = "You've earned a new badge!";
             }
             
-            popup.classList.remove('hidden');
-            
-            setTimeout(() => {
-                popup.classList.add('hidden');
-            }, 3000);
+            // Ensure HTML for popup exists before showing
+            if(popup) {
+                popup.classList.remove('hidden');
+                setTimeout(() => {
+                    popup.classList.add('hidden');
+                }, 3000);
+            }
         };
 
-        // --- BADGE CHECKING FUNCTION ---
+        // --- BADGE CHECKING & UTILITY FUNCTIONS (Unchanged for core logic) ---
         const checkForNewBadges = (oldScore, newScore) => {
+            // Existing logic...
             const newlyEarnedBadges = [];
             
             // Check for Perfect Week badge (7-day streak)
@@ -721,7 +797,6 @@
             return newlyEarnedBadges;
         };
 
-        // --- UTILITY FUNCTIONS ---
         const calculateHealthScore = () => {
             const completed = appState.tasks.filter(t => t.isChecked).length;
             const total = appState.tasks.length;
@@ -756,60 +831,123 @@
             const modal = document.getElementById('levelup-modal');
             document.getElementById('new-level-display').textContent = newLevel;
             modal.classList.remove('hidden');
-            setTimeout(() => {
-                modal.classList.add('hidden');
-            }, 5000);
+            // Removed the setTimeout to re-hide the modal as the click handler takes care of it
+        };
+        
+        const getVitalsStatus = (vitalsKey) => {
+            const vitals = appState.vitals;
+            let status = 'normal';
+
+            switch (vitalsKey) {
+                case 'hr':
+                    if (vitals.hr > 90 || vitals.hr < 60) status = 'warning';
+                    break;
+                case 'bp':
+                    const [systolic, diastolic] = vitals.bp.split('/').map(Number);
+                    if (systolic > 130 || diastolic > 85) status = 'warning';
+                    if (systolic >= 140 || diastolic >= 90) status = 'critical';
+                    break;
+                case 'bg':
+                    if (vitals.bg > 120 || vitals.bg < 70) status = 'warning';
+                    break;
+                case 'spo2':
+                    if (vitals.spo2 < 95) status = 'critical';
+                    if (vitals.spo2 < 97) status = 'warning';
+                    break;
+            }
+            return status;
+        };
+
+        const getStatusStyles = (status) => {
+            switch (status) {
+                case 'critical': return { border: 'border-soft-red-critical', bg: 'bg-red-100', text: 'text-red-700', icon: 'text-red-700' };
+                case 'warning': return { border: 'border-warm-yellow', bg: 'bg-yellow-100', text: 'text-yellow-700', icon: 'text-yellow-700' };
+                case 'normal':
+                default: return { border: 'border-teal-green-primary', bg: 'bg-green-100', text: 'text-green-700', icon: 'text-green-700' };
+            }
         };
 
         // --- UI RENDER FUNCTIONS ---
         const renderHeader = () => {
             document.getElementById('header-user-name').textContent = appState.profile.name;
-            document.getElementById('hr-display').textContent = appState.vitals.hr;
-            document.getElementById('bp-display').textContent = appState.vitals.bp;
-            document.getElementById('bg-display').textContent = appState.vitals.bg;
-            document.getElementById('spo2-display').textContent = appState.vitals.spo2;
-
-            const nextDose = appState.medicationHistory[0]?.nextDose || 'None Scheduled';
-            document.getElementById('next-med-display').textContent = nextDose;
-        };
-
-        const renderHealthScore = (score) => {
-            const scoreDisplayEl = document.getElementById('score-display');
-            const scoreCardEl = document.querySelector('#health-score-card > div');
-            const scoreMessageEl = document.getElementById('score-message');
             
-            if (scoreDisplayEl) scoreDisplayEl.textContent = `${score}%`;
+            // RENDER HOME PAGE VITALS
+            const vitalsMap = {
+                'hr': { el: 'hr-display-home', icon: 'heart' },
+                'bp': { el: 'bp-display-home', icon: 'thermometer-half' },
+                'bg': { el: 'bg-display-home', icon: 'droplet' },
+                'spo2': { el: 'spo2-display-home', icon: 'wind' }
+            };
 
-            if (scoreCardEl) {
-                scoreCardEl.className = 'relative w-40 h-40 rounded-full flex flex-col items-center justify-center font-extrabold text-white text-4xl shadow-2xl border-8 transition-all duration-500';
+            for (const key in vitalsMap) {
+                const el = document.getElementById(vitalsMap[key].el);
+                if (el) el.textContent = appState.vitals[key];
                 
-                if (score >= 90) {
-                    scoreCardEl.classList.add('border-green-300', 'bg-green-500');
-                    if (scoreMessageEl) scoreMessageEl.textContent = 'Excellent! Keep it up!';
-                } else if (score >= 60) {
-                    scoreCardEl.classList.add('border-orange-300', 'bg-orange-500');
-                    if (scoreMessageEl) scoreMessageEl.textContent = 'Good job! Almost there!';
-                } else {
-                    scoreCardEl.classList.add('border-red-300', 'bg-red-500');
-                    if (scoreMessageEl) scoreMessageEl.textContent = 'Let\'s improve today!';
+                // Apply conditional styling to the container
+                const containerEl = document.getElementById(`vitals-${key}`);
+                if (containerEl) {
+                    const status = getVitalsStatus(key);
+                    const styles = getStatusStyles(status);
+
+                    // Clear existing classes and apply new ones
+                    containerEl.className = `p-3 rounded-lg flex items-center space-x-2 border-l-4 ${styles.border} ${styles.bg}`;
+                    
+                    // Update icon color
+                    const iconEl = containerEl.querySelector(`i[data-lucide="${vitalsMap[key].icon}"]`);
+                    if(iconEl) {
+                        iconEl.className = `w-5 h-5 ${styles.icon}`;
+                    }
+                }
+            }
+
+            // Medication Tracker (Home Page)
+            const todayMeds = appState.medicationHistory[0];
+            if (todayMeds) {
+                const dosesTaken = appState.tasks.filter(t => t.icon === 'Pill' && t.isChecked).length;
+                const totalDoses = appState.tasks.filter(t => t.icon === 'Pill').length;
+
+                const nextDoseText = todayMeds.nextDose || 'None Scheduled';
+                const nextDoseEl = document.getElementById('next-med-display-home');
+                if(nextDoseEl) nextDoseEl.textContent = nextDoseText;
+                
+                const dosesDisplay = document.getElementById('doses-taken-display');
+                if(dosesDisplay) dosesDisplay.textContent = `${dosesTaken}/${totalDoses}`;
+
+                const progressRing = document.getElementById('med-progress-ring');
+                const progressText = document.getElementById('med-progress-text');
+
+                if (progressRing && progressText) {
+                    const percentage = totalDoses > 0 ? Math.round((dosesTaken / totalDoses) * 100) : 0;
+                    const circumference = 2 * Math.PI * 40; // R=40
+                    const offset = circumference - (percentage / 100) * circumference;
+
+                    progressRing.style.strokeDashoffset = offset;
+                    progressText.textContent = `${percentage}%`;
+                    
+                    // Change color based on completion
+                    progressRing.classList.remove('text-teal-green-primary', 'text-yellow-500', 'text-soft-red-critical');
+                    if (percentage === 100) {
+                        progressRing.classList.add('text-teal-green-primary');
+                    } else if (percentage >= 50) {
+                        progressRing.classList.add('text-yellow-500');
+                    } else {
+                        progressRing.classList.add('text-soft-red-critical');
+                    }
                 }
             }
         };
 
-        const renderMedLog = () => {
-            const logEl = document.getElementById('med-log-display');
-            if (!logEl) return;
+        const renderHealthScore = (score) => {
+            // This is largely replaced by the Live Vitals Overview card in the new design.
+            // The score calculation logic remains for gamification/reports but no longer has a dedicated large circular card.
+        };
 
-            logEl.innerHTML = appState.medicationHistory.map(log => `
-                <p class="text-gray-700"><span class="font-bold text-teal-600">${log.date}:</span> Took ${log.meds.join(', ')}.</p>
-            `).join('');
+        const renderMedLog = () => {
+            // This section is removed from the new Home Page design.
         };
 
         const renderVitalsForm = () => {
-            document.getElementById('input-hr').value = appState.vitals.hr;
-            document.getElementById('input-bp').value = appState.vitals.bp;
-            document.getElementById('input-bg').value = appState.vitals.bg;
-            document.getElementById('input-spo2').value = appState.vitals.spo2;
+            // Form inputs are hidden but values are kept in state.
         };
 
         const renderTasks = () => {
@@ -817,32 +955,65 @@
             if (!taskListEl) return;
 
             taskListEl.innerHTML = appState.tasks.map(task => {
-                const checkedClass = task.isChecked ? 'bg-green-100 border-green-500' : 'bg-white border-gray-300 hover:bg-teal-50';
-                const iconClass = task.isChecked ? 'text-white bg-green-500' : 'text-gray-500 bg-gray-100';
-                const textClass = task.isChecked ? 'text-green-800 line-through' : 'text-gray-800';
+                const isDone = task.isChecked;
+                const statusText = isDone ? 'Done' : (task.time < new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }) ? 'Pending' : 'Upcoming');
+
+                const checkedClass = isDone ? 'task-done' : 'bg-white border-gray-300 hover:bg-soft-mint-white';
+                const iconBgClass = isDone ? 'bg-teal-green-primary' : (statusText === 'Pending' ? 'bg-soft-red-critical' : 'bg-warm-yellow');
+                const iconColorClass = 'text-white';
+                const textClass = isDone ? 'text-teal-green-primary line-through' : 'text-dark-navy';
+                const statusIcon = isDone ? 'check-circle' : (statusText === 'Pending' ? 'alert-triangle' : 'clock');
+                const statusIconColor = isDone ? 'text-teal-green-primary' : (statusText === 'Pending' ? 'text-soft-red-critical' : 'text-warm-yellow');
 
                 return `
                     <button
                         onclick="toggleTask(${task.id})"
-                        class="w-full p-4 rounded-xl text-left flex items-center justify-between text-xl font-semibold transition-all duration-300 shadow-lg border-2 ${checkedClass}"
+                        class="w-full p-4 rounded-xl text-left flex items-center justify-between text-xl font-semibold transition-all duration-500 shadow-lg border-2 ${checkedClass}"
                     >
                         <div class="flex items-center space-x-4">
-                            <div class="p-3 rounded-full ${iconClass} flex-shrink-0">
+                            <div class="p-3 rounded-full ${iconBgClass} ${iconColorClass} flex-shrink-0">
                                 <i data-lucide="${task.icon}" class="w-6 h-6"></i>
                             </div>
                             <div class="flex flex-col text-left">
-                                <span class="${textClass} text-2xl">${task.name}</span>
-                                <span class="text-sm text-gray-500">${task.time} - Target: ${task.target} ${task.unit}</span>
+                                <span class="${textClass} text-lg">${task.name}</span>
+                                <span class="text-sm text-gray-500">${task.time}</span>
                             </div>
                         </div>
-                        ${task.isChecked ?
-                            `<i data-lucide="check-circle" class="w-8 h-8 text-green-600 animate-pulse"></i>` :
-                            `<i data-lucide="circle" class="w-8 h-8 text-gray-400"></i>`
-                        }
+                        <div class="flex flex-col items-end">
+                            <i data-lucide="${statusIcon}" class="w-6 h-6 ${statusIconColor} ${isDone ? 'animate-pulse' : ''}"></i>
+                            <span class="text-xs font-bold ${statusIconColor.replace('text', 'text-').replace('-500', '-700')}">${statusText}</span>
+                        </div>
                     </button>
                 `;
             }).join('');
         };
+        
+        // Add Task Handler
+        document.getElementById('add-task-form')?.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const title = document.getElementById('new-task-title').value;
+            const time = document.getElementById('new-task-time').value;
+            const type = document.getElementById('new-task-type').value;
+
+            if (title && time && type) {
+                const newTask = {
+                    id: appState.taskIdCounter++,
+                    name: title,
+                    icon: type,
+                    isChecked: false,
+                    target: null,
+                    unit: 'n/a',
+                    time: new Date(`2000/01/01 ${time}`).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+                };
+                appState.tasks.push(newTask);
+                document.getElementById('new-task-title').value = '';
+                document.getElementById('new-task-time').value = '';
+                renderUI();
+                saveState();
+            }
+        });
+        
+        // --- Remaining render functions (Progress, Profile, Chart) are largely unchanged in logic, but use the new colors/styles for consistency ---
 
         const renderProgress = () => {
             const game = appState.gamification;
@@ -857,7 +1028,7 @@
 
             if (badgesContainerEl) {
                 badgesContainerEl.innerHTML = game.badges.map(badge => {
-                    const color = badge.earned ? badge.color : 'bg-gray-300';
+                    const color = badge.earned ? badge.color.replace('bg-', 'bg-') : 'bg-gray-300';
                     const hover = badge.earned ? 'hover:scale-110' : '';
                     const animation = badge.earned ? 'animate-float' : '';
 
@@ -877,7 +1048,7 @@
             document.getElementById('profile-conditions').value = appState.profile.conditions;
             document.getElementById('profile-emergency-contact').value = appState.profile.emergencyContact;
         };
-
+        
         const renderChart = () => {
             const chartContainerEl = document.getElementById('chart-container');
             const chartLabelsEl = document.getElementById('chart-labels');
@@ -889,7 +1060,7 @@
             
             appState.healthData.slice(-7).forEach(data => {
                 const riskHeight = data.risk * 2;
-                const barColor = data.risk < 10 ? 'bg-green-500' : data.risk < 20 ? 'bg-orange-500' : 'bg-red-500';
+                const barColor = data.risk < 10 ? 'bg-teal-green-primary' : data.risk < 20 ? 'bg-warm-yellow' : 'bg-soft-red-critical';
 
                 const barEl = document.createElement('div');
                 barEl.className = `w-1/8 mx-1 rounded-t-lg shadow-lg flex flex-col justify-end items-center text-white font-bold text-xs ${barColor} chart-bar`;
@@ -908,7 +1079,7 @@
             });
         };
 
-        // --- EVENT HANDLERS ---
+        // --- EVENT HANDLERS (Adjusted for new colors/elements) ---
         window.toggleTask = (id) => {
             const oldScore = calculateHealthScore();
             appState.tasks = appState.tasks.map(task =>
@@ -916,11 +1087,23 @@
             );
             const newScore = calculateHealthScore();
             
-            // Check for level up and new badges
+            // Trigger confetti on completion
+            const task = appState.tasks.find(t => t.id === id);
+            if(task && task.isChecked) {
+                confetti({ particleCount: 50, spread: 60 });
+            }
+
+            // Update doses taken for medication tracker
+            const dosesTaken = appState.tasks.filter(t => t.icon === 'Pill' && t.isChecked).length;
+            const totalDoses = appState.tasks.filter(t => t.icon === 'Pill').length;
+            if(appState.medicationHistory.length > 0) {
+                 appState.medicationHistory[0].dosesTaken = dosesTaken;
+                 appState.medicationHistory[0].totalDoses = totalDoses;
+            }
+            
             checkLevelUp(oldScore, newScore);
             const newBadges = checkForNewBadges(oldScore, newScore);
             
-            // Trigger celebration if new badges were earned
             if (newBadges.length > 0) {
                 triggerCelebration('badge');
             }
@@ -966,15 +1149,17 @@
             const button = document.getElementById('profile-form').querySelector('button');
             const originalText = button.textContent;
             button.textContent = 'Profile Saved!';
+            button.classList.remove('bg-teal-green-primary');
             button.classList.add('bg-green-500');
             
             setTimeout(() => {
                 button.textContent = originalText;
                 button.classList.remove('bg-green-500');
+                button.classList.add('bg-teal-green-primary');
             }, 1500);
         });
 
-        // ABDM Export Functions
+        // ABDM Export Functions (Unchanged)
         document.getElementById('export-abdm-btn')?.addEventListener('click', () => {
             const exportStatus = document.getElementById('export-status');
             exportStatus.className = 'mt-4 text-center font-semibold text-lg text-blue-600';
@@ -1062,7 +1247,7 @@
             renderUI();
         };
 
-        // --- ALERT LOGIC ---
+        // --- ALERT LOGIC (Unchanged) ---
         const triggerSmartAlert = async (receiverType, message) => {
             const receiver = receiverType === 'family' ? 'Family Member' : 'Healthcare Provider';
             const alertStatusEl = document.getElementById('alert-status');
@@ -1142,7 +1327,15 @@
         document.addEventListener('DOMContentLoaded', () => {
             loadState();
             renderUI();
-            changePage(appState.currentPage, document.querySelector(`.nav-item.active`));
+            
+            // Re-select the correct active button in the nav on load
+            const activeNavButton = document.querySelector(`#bottom-nav button[onclick*="'${appState.currentPage}'"]`);
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            if(activeNavButton) {
+                activeNavButton.classList.add('active');
+            }
+            
+            changePage(appState.currentPage, activeNavButton);
         });
     </script>
 </body>

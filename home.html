@@ -1,1342 +1,1478 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RPM Compliance Coach</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
-    <style>
-        /* New Custom Colors */
-        .bg-soft-mint-white { background-color: #F4F9F9; }
-        .text-dark-navy { color: #2E3A59; }
-        .bg-teal-green-primary { background-color: #00BFA6; }
-        .hover\:bg-teal-green-dark:hover { background-color: #009985; }
-        .text-warm-yellow { color: #FFD166; }
-        .bg-soft-red-critical { background-color: #FF6B6B; }
-        .hover\:bg-soft-red-dark:hover { background-color: #CC5555; }
-        
-        /* General High-Contrast/Vibrant Styling */
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #F4F9F9; /* Soft mint white */
-            padding-top: 100px; /* Adjusted for smaller, modern header */
-            padding-bottom: 90px;
-            line-height: 1.6;
-        }
-        .card {
-            background-color: #ffffff;
-            border: 1px solid #e0f2f1;
-            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1); /* Lighter shadow */
-            transition: all 0.3s;
-            border-radius: 1.5rem;
-        }
-        .card:hover {
-            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
-            transform: translateY(-2px);
-        }
-        
-        /* Page Control & Transition */
-        .page {
-            display: none;
-            padding: 1rem;
-            min-height: calc(100vh - 190px);
-        }
-        .page.active {
-            display: block;
-            animation: slideInUp 0.6s ease-out forwards;
-        }
-        @keyframes slideInUp {
-            from { opacity: 0; transform: translateY(10%); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RPM Compliance Coach — Light Neon Theme</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
 
-        /* Fixed Header Styles */
-        #fixed-header {
-            z-index: 50;
-            background-color: #00BFA6; /* Teal Green Primary */
-            color: white;
-            padding: 1rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
+  <!-- Tailwind config -->
+  <script>
+    tailwind.config = {
+      theme: { extend: { colors: { }, animation: { 'gradient-x': 'gradientX 18s ease infinite', float: 'float 4s ease-in-out infinite', shine: 'shine 2.5s linear infinite' }, keyframes: { gradientX: { '0%,100%': { backgroundPosition: '0% 50%' }, '50%': { backgroundPosition: '100% 50%' } }, float: { '0%,100%': { transform:'translateY(0)' }, '50%': { transform:'translateY(-6px)' } }, shine: { '0%': { backgroundPosition: '-200% 0' }, '100%': { backgroundPosition: '200% 0' } } } } },
+      safelist: [
+        'text-gray-900','text-gray-800','text-gray-700','text-gray-600',
+        'text-emerald-500','border-emerald-400','bg-emerald-100',
+        'text-amber-500','border-amber-400','bg-amber-100',
+        'text-rose-500','border-rose-400','bg-rose-100',
+        'text-cyan-500','border-cyan-400','bg-cyan-100',
+        'text-purple-500','border-purple-400','bg-purple-100'
+      ]
+    }
+  </script>
 
-        /* Fixed Navbar Styles */
-        #bottom-nav {
-            background-color: #ffffff;
-            border-top: 2px solid #e0f2f1;
-            box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.05);
-            z-index: 60;
-            height: 80px;
-        }
-        .nav-item {
-            color: #2E3A59; /* Dark Navy */
-            transition: color 0.3s, transform 0.2s;
-            min-width: 20%;
-        }
-        .nav-item.active {
-            color: #FFD166; /* Warm Yellow Accent */
-            font-weight: bold;
-            transform: scale(1.1);
-        }
+  <style>
+    /* LIGHT THEME TOKENS with reduced intensity */
+    :root {
+      --bg: #FAFBFF;
+      --bg-elev: rgba(255,255,255,0.98);
+      --card-border: rgba(99, 102, 241, 0.15);
+      --fg: #000000;
+      --muted: rgba(0, 0, 0, 0.85);
+      --muted-2: rgba(0, 0, 0, 0.65);
+      --accent-1: #8B5CF6;
+      --accent-2: #06B6D4;
+      --accent-3: #F97316;
+      --ok: #10B981;
+      --warn: #F59E0B;
+      --danger: #EF4444;
+      --sos-ring: rgba(239, 68, 68, 0.25);
+      --mesh-a: rgba(139, 92, 246, 0.08);
+      --mesh-b: rgba(6, 182, 212, 0.06);
+      --mesh-c: rgba(249, 115, 22, 0.05);
+    }
+    body[data-theme="pastel"] { 
+      --bg: #F8FAFF;
+      --bg-elev: rgba(255,255,255,0.96);
+      --fg: #000000;
+      --muted: rgba(0, 0, 0, 0.9);
+      --muted-2: rgba(0, 0, 0, 0.7);
+      --accent-1: #A78BFA;
+      --accent-2: #38BDF8;
+      --accent-3: #FB7185;
+      --ok: #34D399;
+      --warn: #FBBF24;
+      --danger: #F87171;
+      --sos-ring: rgba(248, 113, 113, 0.25);
+      --mesh-a: rgba(167, 139, 250, 0.06);
+      --mesh-b: rgba(56, 189, 248, 0.05);
+      --mesh-c: rgba(251, 113, 133, 0.04);
+    }
+    body[data-theme="contrast"] { 
+      --bg: #FFFFFF;
+      --bg-elev: #F9FAFB;
+      --fg: #000000;
+      --muted: #000000;
+      --muted-2: #111827;
+      --accent-1: #0066FF;
+      --accent-2: #00D4AA;
+      --accent-3: #FF6B00;
+      --ok: #059669;
+      --warn: #D97706;
+      --danger: #DC2626;
+      --sos-ring: rgba(220, 38, 38, 0.25);
+      --mesh-a: rgba(0, 102, 255, 0.06);
+      --mesh-b: rgba(0, 212, 170, 0.05);
+      --mesh-c: rgba(255, 107, 0, 0.05);
+    }
 
-        /* Central Alert Button */
-        #alert-center-btn-wrapper {
-            position: relative;
-            top: -25px; /* Moved up a bit */
-            z-index: 70;
-        }
-        #alert-center-btn {
-            background-color: #FF6B6B; /* Soft Red Critical */
-            transition: all 0.1s;
-            box-shadow: 0 0 20px rgba(255, 107, 107, 0.7);
-            border: 6px solid #fca5a5;
-        }
-        .alert-active-pulse {
-            animation: pulse-red 1.5s infinite; /* Adjusted speed */
-        }
-        @keyframes pulse-red {
-            0%, 100% {
-                transform: scale(1);
-                box-shadow: 0 0 10px rgba(255, 107, 107, 0.7);
-            }
-            50% {
-                transform: scale(1.1);
-                box-shadow: 0 0 25px rgba(255, 107, 107, 1);
-            }
-        }
-        
-        /* Custom Button & Animation Styles */
-        .primary-btn {
-            @apply text-dark-navy font-bold py-3 px-4 rounded-xl transition-all duration-300 transform hover:scale-105 active:scale-95 bg-warm-yellow hover:bg-yellow-400;
-        }
+    html,body{ height:100%; }
+    body{
+      background:
+        radial-gradient(1000px 600px at -10% -10%, var(--mesh-a), transparent 60%),
+        radial-gradient(800px 500px at 110% 0%, var(--mesh-b), transparent 60%),
+        radial-gradient(900px 600px at 50% 120%, var(--mesh-c), transparent 60%),
+        var(--bg);
+      background-attachment: fixed; 
+      color: var(--fg);
+      padding-top: 20px;
+      padding-bottom: 120px;
+    }
+    .card{ 
+      background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,255,255,0.9)); 
+      border: 1px solid var(--card-border); 
+      backdrop-filter: blur(8px); 
+      border-radius: 1.25rem; 
+      box-shadow: 
+        0 4px 16px rgba(99, 102, 241, 0.08),
+        0 1px 4px rgba(99, 102, 241, 0.04),
+        inset 0 1px 0 rgba(255,255,255,0.9);
+    }
+    .tile{ 
+      border: 1px solid var(--card-border); 
+      background: rgba(255,255,255,0.85); 
+      border-radius: 1rem; 
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.9);
+    }
+    .btn-gradient{ 
+      background-image: linear-gradient(135deg, var(--accent-1), var(--accent-2), var(--accent-3)); 
+      background-size: 200% 200%; 
+      color: white; 
+      font-weight: 800; 
+      border-radius: .9rem; 
+      box-shadow: 
+        0 8px 24px color-mix(in oklab, var(--accent-1) 35%, transparent), 
+        0 6px 18px color-mix(in oklab, var(--accent-2) 25%, transparent),
+        inset 0 1px 0 rgba(255,255,255,0.3);
+      transition: transform .2s ease, box-shadow .2s ease; 
+      animation: gradientX 14s ease infinite; 
+    }
+    .btn-gradient:hover{ 
+      transform: translateY(-2px) scale(1.02); 
+      box-shadow: 
+        0 12px 32px color-mix(in oklab, var(--accent-1) 45%, transparent), 
+        0 8px 24px color-mix(in oklab, var(--accent-2) 35%, transparent),
+        inset 0 1px 0 rgba(255,255,255,0.4);
+    }
+    .neon-title{ 
+      background: linear-gradient(90deg, 
+        color-mix(in oklab, var(--accent-1) 80%, white 10%), 
+        var(--accent-2), 
+        color-mix(in oklab, var(--accent-3) 85%, white 5%), 
+        color-mix(in oklab, var(--accent-1) 80%, white 10%)); 
+      background-size: 300% 100%; 
+      -webkit-background-clip: text; 
+      background-clip: text; 
+      color: transparent; 
+      animation: shine 6s linear infinite; 
+      text-shadow: 0 0 20px color-mix(in oklab, var(--accent-1) 30%, transparent);
+    }
+    .glass-pill{ 
+      background: rgba(255,255,255,0.8); 
+      border: 1px solid var(--card-border); 
+      box-shadow: 
+        inset 0 1px 0 rgba(255,255,255,0.9),
+        0 2px 8px rgba(99, 102, 241, 0.1); 
+      border-radius: 9999px; 
+      color: var(--fg); 
+    }
+    .progress-rail{ 
+      background: rgba(243, 244, 246, 0.8); 
+      border: 1px solid var(--card-border); 
+      border-radius: 9999px; 
+      overflow: hidden; 
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+    }
+    .progress-fill{ 
+      height: 1rem; 
+      border-radius: 9999px; 
+      background-image: linear-gradient(90deg, var(--accent-2), var(--accent-1), var(--accent-3)); 
+      background-size: 300% 100%; 
+      animation: shine 3.5s linear infinite; 
+      box-shadow: 
+        0 0 0 2px color-mix(in oklab, var(--accent-1) 25%, transparent), 
+        0 0 16px color-mix(in oklab, var(--accent-2) 25%, transparent) inset,
+        0 2px 4px rgba(0,0,0,0.1);
+    }
+    .sos-glow{ 
+      box-shadow: 
+        0 0 0 6px var(--sos-ring), 
+        0 0 42px var(--sos-ring),
+        0 8px 32px rgba(0,0,0,0.15);
+    }
+    .page{ display:none; }
+    .page.active{ display:block; animation: fadeIn .3s ease; }
+    @keyframes fadeIn{ from{ opacity:0; transform:translateY(4px);} to{opacity:1; transform:translateY(0);} }
 
-        @keyframes pulse-soft {
-            0% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.05); opacity: 0.8; }
-            100% { transform: scale(1); opacity: 1; }
-        }
-        .animate-pulse-soft { animation: pulse-soft 2s infinite; }
-        
-        /* Activity Icon Ripple (Motivation) */
-        .ripple-icon {
-            position: relative;
-        }
-        .ripple-icon::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 100%;
-            height: 100%;
-            background-color: currentColor;
-            border-radius: 50%;
-            opacity: 0;
-            transform: translate(-50%, -50%);
-            animation: ripple 2s infinite ease-out;
-        }
-        @keyframes ripple {
-            0% { width: 0; height: 0; opacity: 0.5; }
-            100% { width: 150%; height: 150%; opacity: 0; }
-        }
-        .ripple-icon.delay::before { animation-delay: 1s; }
+    /* Enhanced cyberpunk elements */
+    .cyber-border {
+      position: relative;
+    }
+    .cyber-border::before {
+      content: '';
+      position: absolute;
+      inset: -2px;
+      background: linear-gradient(45deg, var(--accent-1), var(--accent-2), var(--accent-3), var(--accent-1));
+      border-radius: inherit;
+      z-index: -1;
+      opacity: 0.6;
+      filter: blur(8px);
+    }
 
+    /* Floating header styles */
+    .floating-header {
+      margin: 0 auto 2rem auto;
+      border-radius: 1.5rem;
+      box-shadow: 
+        0 20px 40px rgba(99, 102, 241, 0.15),
+        0 8px 24px rgba(99, 102, 241, 0.1);
+      transition: all 0.3s ease;
+      background: linear-gradient(180deg, rgba(250,251,255,0.98), rgba(248,250,255,0.95)) !important;
+    }
+    .floating-header:hover {
+      box-shadow: 
+        0 25px 50px rgba(99, 102, 241, 0.2),
+        0 12px 32px rgba(99, 102, 241, 0.15);
+      transform: translateY(-2px);
+    }
 
-        /* Task done animation */
-        .task-done {
-            transition: all 0.5s ease-in-out;
-            background-color: #f1fff1 !important; /* Lighter green */
-            border-color: #00BFA6 !important;
-            color: #00BFA6 !important;
-        }
-    </style>
-    <script>
-        // Configure Tailwind
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'soft-mint-white': '#F4F9F9',
-                        'teal-green-primary': '#00BFA6',
-                        'warm-yellow': '#FFD166',
-                        'soft-red-critical': '#FF6B6B',
-                        'dark-navy': '#2E3A59',
-                    },
-                    animation: {
-                        'spin-slow': 'spin 3s linear infinite',
-                        'ping-slow': 'ping 2s cubic-bezier(0, 0, 0.2, 1) infinite',
-                        'bounce-slow': 'bounce 2s infinite',
-                        'scale-up': 'scaleUp 0.5s ease-out forwards',
-                        'float': 'float 3s ease-in-out infinite',
-                        'wiggle': 'wiggle 1s ease-in-out infinite',
-                        'pulse-glow': 'pulseGlow 2s infinite',
-                    },
-                    keyframes: {
-                        scaleUp: {
-                            '0%': { transform: 'scale(0.8)', opacity: '0' },
-                            '100%': { transform: 'scale(1)', opacity: '1' },
-                        },
-                        float: {
-                            '0%, 100%': { transform: 'translateY(0)' },
-                            '50%': { transform: 'translateY(-5px)' }, /* Reduced float for subtlety */
-                        },
-                        wiggle: {
-                            '0%, 100%': { transform: 'rotate(-3deg)' },
-                            '50%': { transform: 'rotate(3deg)' },
-                        },
-                        pulseGlow: {
-                            '0%, 100%': { boxShadow: '0 0 5px rgba(0, 191, 166, 0.5)' },
-                            '50%': { boxShadow: '0 0 20px rgba(0, 191, 166, 0.8)' },
-                        }
-                    }
-                }
-            }
-        }
-        
-        // Initialize Lucide icons
-        window.createLucideIcons = () => {
-            if (typeof lucide !== 'undefined') {
-                lucide.createIcons({ 
-                    attrs: { 
-                        'stroke-width': 2, 
-                        'class': 'lucide' 
-                    } 
-                });
-            }
-        };
-        document.addEventListener('DOMContentLoaded', window.createLucideIcons);
-    </script>
+    /* Ensure content has enough space at the bottom */
+    .main-content {
+      min-height: calc(100vh - 200px);
+      padding-bottom: 2rem;
+    }
+
+    /* Vitals input styles */
+    .vital-input {
+      background: transparent;
+      border: none;
+      text-align: center;
+      font-weight: bold;
+      font-size: 1.125rem;
+      width: 100%;
+      color: var(--fg);
+      outline: none;
+      padding: 0.25rem;
+      border-radius: 0.5rem;
+      transition: all 0.2s ease;
+    }
+    .vital-input:focus {
+      background: color-mix(in oklab, var(--accent-1) 10%, transparent);
+      box-shadow: 0 0 0 2px color-mix(in oklab, var(--accent-1) 30%, transparent);
+    }
+    .vital-input:hover {
+      background: color-mix(in oklab, var(--accent-1) 5%, transparent);
+    }
+
+    /* Language specific styles */
+    .hindi { font-family: 'Noto Sans Devanagari', 'Mangal', 'Arial Unicode MS', sans-serif; }
+    .bengali { font-family: 'Noto Sans Bengali', 'SolaimanLipi', 'Arial Unicode MS', sans-serif; }
+    .telugu { font-family: 'Noto Sans Telugu', 'Gautami', 'Arial Unicode MS', sans-serif; }
+    .tamil { font-family: 'Noto Sans Tamil', 'Latha', 'Arial Unicode MS', sans-serif; }
+    .gujarati { font-family: 'Noto Sans Gujarati', 'Shruti', 'Arial Unicode MS', sans-serif; }
+    .marathi { font-family: 'Noto Sans Devanagari', 'Mangal', 'Arial Unicode MS', sans-serif; }
+    .punjabi { font-family: 'Noto Sans Gurmukhi', 'Raavi', 'Arial Unicode MS', sans-serif; }
+    .kannada { font-family: 'Noto Sans Kannada', 'Tunga', 'Arial Unicode MS', sans-serif; }
+    .malayalam { font-family: 'Noto Sans Malayalam', 'Kartika', 'Arial Unicode MS', sans-serif; }
+    .odia { font-family: 'Noto Sans Oriya', 'Kalinga', 'Arial Unicode MS', sans-serif; }
+
+    .lang-text {
+      transition: all 0.3s ease;
+    }
+  </style>
+
+  <!-- Google Fonts for Indian languages -->
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;700&family=Noto+Sans+Bengali:wght@400;500;700&family=Noto+Sans+Telugu:wght@400;500;700&family=Noto+Sans+Tamil:wght@400;500;700&family=Noto+Sans+Gujarati:wght@400;500;700&family=Noto+Sans+Gurmukhi:wght@400;500;700&family=Noto+Sans+Kannada:wght@400;500;700&family=Noto+Sans+Malayalam:wght@400;500;700&family=Noto+Sans+Oriya:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
-<body>
-
-    <header id="fixed-header" class="fixed top-0 left-0 right-0 h-24 flex items-center">
-        <div class="max-w-4xl mx-auto flex items-center justify-between w-full px-4">
-            <div class="flex items-center space-x-4">
-                <i data-lucide="compass" class="w-8 h-8 text-warm-yellow animate-spin-slow"></i>
-                <div>
-                    <p class="text-xl font-bold">Hello, <span id="header-user-name">John Doe</span></p>
-                    <p class="text-sm text-white flex items-center opacity-80">
-                        <i data-lucide="sun" class="w-4 h-4 mr-1"></i> Good Morning!
-                    </p>
-                </div>
-            </div>
-            <button onclick="changePage('settings', document.querySelector('#bottom-nav button:last-child'))" class="p-2 rounded-full hover:bg-teal-green-dark transition">
-                 <i data-lucide="user" class="w-6 h-6 text-warm-yellow"></i>
-            </button>
+<body data-theme="neon">
+  <!-- Header - Changed from fixed to floating -->
+  <header id="floating-header" class="max-w-5xl mx-auto h-28 flex flex-col justify-between border-b floating-header" style="border-color: color-mix(in oklab, var(--accent-1) 20%, transparent)">
+    <div class="flex items-center justify-between w-full px-4 pt-4">
+      <div class="flex items-center gap-4">
+        <span class="inline-flex items-center justify-center w-10 h-10 rounded-xl tile cyber-border">
+          <i data-lucide="compass" class="w-6 h-6" style="color: var(--accent-1)"></i>
+        </span>
+        <div>
+          <p class="text-2xl font-black tracking-tight">Hello, <span id="header-user-name" class="neon-title">John Doe</span></p>
+          <p class="text-xs flex items-center gap-2" style="color: var(--muted-2)"><i data-lucide="sun" class="w-4 h-4"></i><span id="greeting-text">Good Morning!</span></p>
         </div>
-    </header>
+      </div>
 
-    <main class="max-w-4xl mx-auto pt-4">
+      <!-- LANGUAGE & THEME SWITCHER -->
+      <div class="flex items-center gap-2">
+        <label for="language-select" class="text-xs" style="color: var(--muted-2)">Language</label>
+        <select id="language-select" class="glass-pill px-3 py-2 text-sm font-semibold">
+          <option value="en">English</option>
+          <option value="hi">हिन्दी (Hindi)</option>
+          <option value="bn">বাংলা (Bengali)</option>
+          <option value="te">తెలుగు (Telugu)</option>
+          <option value="ta">தமிழ் (Tamil)</option>
+          <option value="gu">ગુજરાતી (Gujarati)</option>
+          <option value="mr">मराठी (Marathi)</option>
+          <option value="pa">ਪੰਜਾਬੀ (Punjabi)</option>
+          <option value="kn">ಕನ್ನಡ (Kannada)</option>
+          <option value="ml">മലയാളം (Malayalam)</option>
+          <option value="or">ଓଡ଼ିଆ (Odia)</option>
+        </select>
+        <label for="theme-select" class="text-xs" style="color: var(--muted-2)">Theme</label>
+        <select id="theme-select" class="glass-pill px-3 py-2 text-sm font-semibold">
+          <option value="neon">Neon</option>
+          <option value="pastel">Pastel</option>
+          <option value="contrast">High‑Contrast</option>
+        </select>
+      </div>
+    </div>
+    <div class="flex items-center justify-between w-full px-4 pb-3 text-sm" id="header-vitals-display"></div>
+  </header>
 
-        <div id="page-home" class="page active">
-            
-            <div class="flex justify-around items-center mb-6 card p-4 bg-white shadow-xl">
-                <button onclick="handleAlertHoldStart(event); setTimeout(() => handleAlertHoldEnd(event), 3000);" class="flex flex-col items-center nav-item transform hover:scale-110 active:scale-95 transition-all">
-                    <i data-lucide="siren" class="w-8 h-8 text-soft-red-critical animate-pulse-soft"></i>
-                    <span class="text-xs font-semibold text-soft-red-critical mt-1">SOS</span>
-                </button>
-                <button onclick="triggerSmartAlert('doctor', 'Secure daily report: Compliance score ${calculateHealthScore()}%.');" class="flex flex-col items-center nav-item transform hover:scale-110 active:scale-95 transition-all">
-                    <i data-lucide="phone-call" class="w-8 h-8 text-dark-navy hover:text-teal-green-primary"></i>
-                    <span class="text-xs font-semibold text-dark-navy mt-1">Call Doctor</span>
-                </button>
-                <button onclick="changePage('settings', document.querySelector('#bottom-nav button:last-child'))" class="flex flex-col items-center nav-item transform hover:scale-110 active:scale-95 transition-all">
-                    <i data-lucide="file-text" class="w-8 h-8 text-dark-navy hover:text-teal-green-primary"></i>
-                    <span class="text-xs font-semibold text-dark-navy mt-1">Reports</span>
-                </button>
-                <button onclick="changePage('todo', document.querySelector('#bottom-nav button:nth-child(2)'))" class="flex flex-col items-center nav-item transform hover:scale-110 active:scale-95 transition-all">
-                    <i data-lucide="list-checks" class="w-8 h-8 text-dark-navy hover:text-teal-green-primary"></i>
-                    <span class="text-xs font-semibold text-dark-navy mt-1">To-Do List</span>
-                </button>
-            </div>
-            
-            <div class="card p-6 mb-6 bg-gradient-to-r from-soft-mint-white to-white border-l-8 border-warm-yellow" id="medication-tracker-card">
-                <h3 class="text-xl font-bold text-dark-navy mb-3 flex items-center">
-                    <i data-lucide="pill" class="w-6 h-6 mr-2 text-warm-yellow"></i> Medication Tracker
-                </h3>
-                <div class="flex items-center justify-between">
-                    <div class="relative w-20 h-20">
-                        <svg class="w-full h-full" viewBox="0 0 100 100">
-                            <circle class="text-gray-200" stroke-width="10" stroke="currentColor" fill="transparent" r="40" cx="50" cy="50"/>
-                            <circle id="med-progress-ring" class="text-teal-green-primary transition-all duration-1000 ease-out" stroke-width="10" stroke-dasharray="251.2" stroke-dashoffset="75.36" stroke-linecap="round" stroke="currentColor" fill="transparent" r="40" cx="50" cy="50" transform="rotate(-90 50 50)"/>
-                            <text id="med-progress-text" x="50" y="55" font-size="20" text-anchor="middle" class="font-bold text-dark-navy">70%</text>
-                        </svg>
-                    </div>
-                    <div class="text-right">
-                        <p class="text-3xl font-extrabold text-teal-green-primary" id="doses-taken-display">2/3</p>
-                        <p class="text-sm text-gray-600">Doses Taken Today</p>
-                    </div>
-                </div>
-                <div class="mt-4 p-3 rounded-lg border border-warm-yellow bg-yellow-50 animate-pulse-soft">
-                    <p class="font-semibold text-sm text-gray-800 flex items-center">
-                        <i data-lucide="clock" class="w-4 h-4 mr-2 text-warm-yellow"></i> Next Dose: <span id="next-med-display-home" class="ml-1 font-bold">Aspirin at 8:00 PM</span>
-                    </p>
-                </div>
-            </div>
+  <!-- Main -->
+  <main class="max-w-5xl mx-auto pt-4 main-content">
+    <!-- HOME -->
+    <section id="page-home" class="page active">
+      <div id="home-content"></div>
+    </section>
 
-            <div id="health-summary-card" class="card p-6 mb-6 bg-gradient-to-tr from-white to-soft-mint-white">
-                <h3 class="text-xl font-bold text-dark-navy mb-3 flex items-center">
-                    <i data-lucide="heart-pulse" class="w-6 h-6 mr-2 text-soft-red-critical animate-pulse-soft"></i> Live Vitals Overview
-                </h3>
-                <div class="grid grid-cols-2 gap-4 text-dark-navy text-lg font-semibold">
-                    <div id="vitals-hr" class="p-3 rounded-lg flex items-center space-x-2 border-l-4 border-green-500 bg-green-50">
-                        <i data-lucide="heart" class="w-5 h-5 text-green-700"></i>
-                        <span>HR: <span id="hr-display-home">72</span> bpm</span>
-                    </div>
-                    <div id="vitals-bp" class="p-3 rounded-lg flex items-center space-x-2 border-l-4 border-yellow-500 bg-yellow-50">
-                        <i data-lucide="thermometer-half" class="w-5 h-5 text-yellow-700"></i>
-                        <span>BP: <span id="bp-display-home">120/80</span> mmHg</span>
-                    </div>
-                    <div id="vitals-bg" class="p-3 rounded-lg flex items-center space-x-2 border-l-4 border-green-500 bg-green-50">
-                        <i data-lucide="droplet" class="w-5 h-5 text-green-700"></i>
-                        <span>Glucose: <span id="bg-display-home">110</span> mg/dL</span>
-                    </div>
-                    <div id="vitals-spo2" class="p-3 rounded-lg flex items-center space-x-2 border-l-4 border-green-500 bg-green-50">
-                        <i data-lucide="wind" class="w-5 h-5 text-green-700"></i>
-                        <span>SpO2: <span id="spo2-display-home">97</span>%</span>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="card p-6 mb-6">
-                 <h3 class="text-xl font-bold text-dark-navy mb-4 flex items-center">
-                    <i data-lucide="footprints" class="w-6 h-6 mr-2 text-teal-green-primary"></i> Daily Activity
-                </h3>
-                <div class="grid grid-cols-3 gap-4 text-center">
-                    <div class="flex flex-col items-center">
-                        <div class="p-3 rounded-full bg-teal-green-primary text-white mb-2 ripple-icon">
-                            <i data-lucide="shoe" class="w-6 h-6"></i>
-                        </div>
-                        <p class="text-lg font-bold text-dark-navy">4,356</p>
-                        <p class="text-xs text-gray-500">Steps</p>
-                    </div>
-                    <div class="flex flex-col items-center">
-                        <div class="p-3 rounded-full bg-blue-500 text-white mb-2 ripple-icon delay">
-                            <i data-lucide="droplets" class="w-6 h-6"></i>
-                        </div>
-                        <p class="text-lg font-bold text-dark-navy">6/8</p>
-                        <p class="text-xs text-gray-500">Water (glasses)</p>
-                    </div>
-                    <div class="flex flex-col items-center">
-                        <div class="p-3 rounded-full bg-purple-500 text-white mb-2 ripple-icon">
-                            <i data-lucide="moon" class="w-6 h-6"></i>
-                        </div>
-                        <p class="text-lg font-bold text-dark-navy">7.2 hrs</p>
-                        <p class="text-xs text-gray-500">Sleep</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div id="alerts-container" class="space-y-3">
-                 <div class="card p-4 bg-soft-red-critical text-white flex items-center space-x-3 animate-wiggle">
-                    <i data-lucide="bell" class="w-6 h-6 flex-shrink-0"></i>
-                    <p class="font-semibold">ALERT: BP reading slightly high. Please recheck in 30 mins.</p>
-                </div>
-                <div class="card p-4 bg-warm-yellow text-dark-navy flex items-center space-x-3">
-                    <i data-lucide="calendar-check" class="w-6 h-6 flex-shrink-0"></i>
-                    <p class="font-semibold">Gentle Reminder: Doctor visit tomorrow at 10 AM.</p>
-                </div>
-            </div>
+    <!-- TODO -->
+    <section id="page-todo" class="page">
+      <div id="todo-content"></div>
+    </section>
 
-            <div class="card p-6 bg-soft-mint-white mt-6 hidden">
-                <form id="vitals-form" class="space-y-4">
-                    <input type="number" id="input-hr" placeholder="Heart Rate (bpm)">
-                    <input type="text" id="input-bp" placeholder="BP (e.g., 120/80)">
-                    <input type="number" id="input-bg" placeholder="Blood Glucose (mg/dL)">
-                    <input type="number" id="input-spo2" placeholder="SpO2 (%)">
-                    <button type="submit">Save Vitals</button>
-                </form>
-            </div>
-        </div>
+    <!-- PROGRESS -->
+    <section id="page-progress" class="page">
+      <div id="progress-content"></div>
+    </section>
 
-        <div id="page-todo" class="page">
-            
-            <h2 class="text-3xl font-bold text-dark-navy mb-5 flex items-center">
-                <i data-lucide="heart" class="w-8 h-8 mr-2 text-soft-red-critical inline-block animate-pulse-soft"></i> My Health Tasks Today
-            </h2>
-            
-            <div class="card p-4 mb-6 bg-soft-mint-white">
-                 <h3 class="text-xl font-bold text-dark-navy mb-3">➕ Add New Task</h3>
-                 <form id="add-task-form" class="space-y-3">
-                     <input type="text" id="new-task-title" placeholder="Task Title (e.g., Take BP Pill)" class="w-full p-3 border-2 border-teal-green-primary rounded-lg text-lg focus:ring-teal-green-primary focus:border-teal-green-primary">
-                     <div class="grid grid-cols-2 gap-3">
-                         <input type="time" id="new-task-time" class="w-full p-3 border-2 border-teal-green-primary rounded-lg text-lg focus:ring-teal-green-primary focus:border-teal-green-primary">
-                         <select id="new-task-type" class="w-full p-3 border-2 border-teal-green-primary rounded-lg text-lg focus:ring-teal-green-primary focus:border-teal-green-primary bg-white">
-                             <option value="Pill">Medication</option>
-                             <option value="Footprints">Exercise</option>
-                             <option value="Droplets">Hydration</option>
-                             <option value="Activity">Vitals Check</option>
-                             <option value="NotebookPen">Other</option>
-                         </select>
-                     </div>
-                     <button type="submit" class="w-full bg-teal-green-primary hover:bg-teal-green-dark text-white font-bold py-3 rounded-xl transition-all duration-300 transform hover:scale-105 active:scale-95 animate-pulse-glow">
-                         <i data-lucide="plus" class="w-5 h-5 inline-block mr-2"></i> Add Task
-                     </button>
-                 </form>
-            </div>
+    <!-- SETTINGS -->
+    <section id="page-settings" class="page">
+      <div id="settings-content"></div>
+    </section>
+  </main>
 
-            <div id="task-list" class="space-y-4">
-                </div>
-            
-             <div class="card p-4 mt-6 bg-yellow-50 border-t-4 border-warm-yellow">
-                <h3 class="text-xl font-bold text-dark-navy mb-3">📅 Tomorrow's Preview</h3>
-                <div id="tomorrow-preview" class="flex overflow-x-auto space-x-4">
-                     <div class="p-3 bg-white border border-gray-200 rounded-lg flex-shrink-0 w-40 text-center">
-                        <i data-lucide="clock" class="w-5 h-5 text-gray-500 mx-auto"></i>
-                        <p class="text-sm font-semibold mt-1">8:00 AM</p>
-                        <p class="text-xs text-gray-600">Morning BP Check</p>
-                    </div>
-                     <div class="p-3 bg-white border border-gray-200 rounded-lg flex-shrink-0 w-40 text-center">
-                        <i data-lucide="user-check" class="w-5 h-5 text-blue-500 mx-auto"></i>
-                        <p class="text-sm font-semibold mt-1">10:00 AM</p>
-                        <p class="text-xs text-gray-600">Doctor Visit Reminder</p>
-                    </div>
-                     <div class="p-3 bg-white border border-gray-200 rounded-lg flex-shrink-0 w-40 text-center">
-                        <i data-lucide="pill" class="w-5 h-5 text-green-500 mx-auto"></i>
-                        <p class="text-sm font-semibold mt-1">1:00 PM</p>
-                        <p class="text-xs text-gray-600">Vitamin Dose Schedule</p>
-                    </div>
-                </div>
-            </div>
-            
-        </div>
+  <!-- Bottom Nav -->
+  <nav id="bottom-nav" class="fixed bottom-0 left-0 right-0 h-20 flex justify-around items-center border-t" style="background: linear-gradient(180deg, rgba(250,251,255,0.98), rgba(248,250,255,0.95)); backdrop-filter: blur(12px); border-color: color-mix(in oklab, var(--accent-1) 20%, transparent)" role="navigation" aria-label="Primary">
+    <button onclick="changePage('home', this)" class="nav-item flex flex-col items-center justify-center active" aria-current="page" type="button">
+      <i data-lucide="home" class="w-7 h-7" style="color: var(--accent-1)"></i>
+      <span class="text-[11px] font-semibold lang-text" data-key="nav.home" style="color: #000000">Home</span>
+    </button>
+    <button onclick="changePage('todo', this)" class="nav-item flex flex-col items-center justify-center" type="button">
+      <i data-lucide="list-checks" class="w-7 h-7" style="color: var(--accent-1)"></i>
+      <span class="text-[11px] font-semibold lang-text" data-key="nav.todo" style="color: #000000">To Do</span>
+    </button>
+
+    <div id="alert-center-btn-wrapper" class="flex-shrink-0">
+      <button id="alert-center-btn" class="w-20 h-20 rounded-2xl grid place-items-center text-white text-3xl font-bold transform transition duration-150 sos-glow cyber-border" style="background-image: radial-gradient(120px 120px at 50% 40%, color-mix(in oklab, var(--danger) 60%, transparent), color-mix(in oklab, var(--danger) 25%, transparent));" ontouchstart="handleAlertHoldStart(event)" ontouchend="handleAlertHoldEnd(event)" onmousedown="handleAlertHoldStart(event)" onmouseup="handleAlertHoldEnd(event)" ontouchmove="handleAlertHoldMove(event)" aria-label="Hold to send SOS" type="button">
+        <i data-lucide="siren" class="w-8 h-8 absolute transition-opacity duration-300 opacity-100" id="siren-icon"></i>
+        <span id="countdown-display" class="text-white text-4xl font-extrabold opacity-0 transition-opacity duration-300">3</span>
+      </button>
+    </div>
+
+    <button onclick="changePage('progress', this)" class="nav-item flex flex-col items-center justify-center" type="button">
+      <i data-lucide="trending-up" class="w-7 h-7" style="color: var(--accent-1)"></i>
+      <span class="text-[11px] font-semibold lang-text" data-key="nav.progress" style="color: #000000">Progress</span>
+    </button>
+    <button onclick="changePage('settings', this)" class="nav-item flex flex-col items-center justify-center" type="button">
+      <i data-lucide="settings" class="w-7 h-7" style="color: var(--accent-1)"></i>
+      <span class="text-[11px] font-semibold lang-text" data-key="nav.settings" style="color: #000000">Settings</span>
+    </button>
+  </nav>
+
+  <script>
+    // ===================
+    // State & Utilities
+    // ===================
+    const TODAY_DATE_KEY = new Date().toDateString();
+    const toTimeLabel = (m) => { const h=Math.floor(m/60), mm=m%60; const d=new Date(2000,0,1,h,mm); return d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}); };
+    const nowMinutes = () => { const d = new Date(); return d.getHours()*60 + d.getMinutes(); };
+
+    const THEME_TOKENS = {
+      neon: { bg:'#FAFBFF', fg:'#000000', muted:'#000000D9', muted2:'#000000A6', primary:'#8B5CF6', secondary:'#06B6D4', accent:'#F97316', ok:'#10B981', warn:'#F59E0B', danger:'#EF4444' },
+      pastel: { bg:'#F8FAFF', fg:'#000000', muted:'#000000E6', muted2:'#000000B3', primary:'#A78BFA', secondary:'#38BDF8', accent:'#FB7185', ok:'#34D399', warn:'#FBBF24', danger:'#F87171' },
+      contrast: { bg:'#FFFFFF', fg:'#000000', muted:'#000000', muted2:'#111827', primary:'#0066FF', secondary:'#00D4AA', accent:'#FF6B00', ok:'#059669', warn:'#D97706', danger:'#DC2626' }
+    };
+
+    // ===================
+    // Multi-language Support
+    // ===================
+    const translations = {
+      en: {
+        // Navigation
+        'nav.home': 'Home',
+        'nav.todo': 'To Do',
+        'nav.progress': 'Progress',
+        'nav.settings': 'Settings',
         
-        <div id="page-progress" class="page text-center">
-             <h2 class="text-3xl font-bold text-dark-navy mb-5">
-                <i data-lucide="trophy" class="w-8 h-8 mr-2 text-warm-yellow inline-block"></i> Your Progress
-            </h2>
-            
-            <div class="card p-6 mb-6 bg-orange-50">
-                <div class="flex items-center justify-center space-x-4">
-                    <i data-lucide="flame" class="w-10 h-10 text-orange-500"></i>
-                    <div>
-                        <p class="text-xl text-gray-600 font-semibold">Current Streak</p>
-                        <p class="text-4xl font-extrabold text-orange-700"><span id="streak-display">3</span> days</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="card p-6 mb-8 bg-yellow-50">
-                <p class="text-xl text-gray-600 font-semibold">Your Current Health Level:</p>
-                <div class="text-6xl font-extrabold text-teal-700 my-3 relative inline-block">
-                    Level <span id="level-display">5</span>
-                    <i data-lucide="zap" class="w-8 h-8 absolute top-0 right-[-30px] text-orange-500 animate-bounce-slow"></i>
-                </div>
-                <div class="w-full bg-gray-200 rounded-full h-4 relative overflow-hidden">
-                    <div id="progress-bar" class="bg-orange-500 h-4 rounded-full transition-all duration-1000 ease-out" style="width: 65%;"></div>
-                    <span class="absolute top-0 left-1/2 transform -translate-x-1/2 text-sm text-white font-bold">65% to next level!</span>
-                </div>
-            </div>
-            
-            <div class="card p-6">
-                <h3 class="text-2xl font-bold text-dark-navy mb-4 flex items-center">
-                    <i data-lucide="award" class="w-6 h-6 mr-2 text-warm-yellow"></i> Badges Earned
-                </h3>
-                <div id="badges-container" class="grid grid-cols-3 sm:grid-cols-5 gap-4">
-                    </div>
-            </div>
-            
-            <div id="levelup-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-50 hidden" onclick="this.classList.add('hidden')">
-                <div class="bg-white p-8 rounded-3xl text-center shadow-2xl relative animate-scale-up" onclick="event.stopPropagation()">
-                    <i data-lucide="star" class="w-16 h-16 text-yellow-500 mx-auto animate-spin-slow"></i>
-                    <h3 class="text-4xl font-extrabold text-green-600 mt-4">LEVEL UP!</h3>
-                    <p class="text-2xl text-gray-700 mt-2">You reached Level <span id="new-level-display">6</span>!</p>
-                    <button class="mt-5 px-6 py-3 bg-teal-500 text-white font-bold rounded-xl hover:bg-teal-600 transition-all">Awesome!</button>
-                </div>
-            </div>
-        </div>
-
-        <div id="page-settings" class="page">
-            <h2 class="text-3xl font-bold text-dark-navy mb-5">
-                <i data-lucide="settings" class="w-8 h-8 mr-2 text-warm-yellow inline-block"></i> Settings & Reports
-            </h2>
-             <div class="space-y-6">
-                <div class="card p-6">
-                    <h3 class="text-2xl font-bold text-dark-navy mb-3 flex items-center">
-                        <i data-lucide="user" class="w-6 h-6 mr-2 text-blue-500"></i> Profile Settings
-                    </h3>
-                    <form id="profile-form" class="space-y-4">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-gray-700 font-medium mb-2">Full Name</label>
-                                <input type="text" id="profile-name" class="w-full p-3 border-2 border-teal-300 rounded-lg text-lg focus:ring-teal-green-primary focus:border-teal-green-primary">
-                            </div>
-                            <div>
-                                <label class="block text-gray-700 font-medium mb-2">Date of Birth</label>
-                                <input type="date" id="profile-dob" class="w-full p-3 border-2 border-teal-300 rounded-lg text-lg focus:ring-teal-green-primary focus:border-teal-green-primary">
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block text-gray-700 font-medium mb-2">Health Conditions</label>
-                            <textarea id="profile-conditions" rows="3" class="w-full p-3 border-2 border-teal-300 rounded-lg text-lg focus:ring-teal-green-primary focus:border-teal-green-primary" placeholder="List any health conditions..."></textarea>
-                        </div>
-                        <div>
-                            <label class="block text-gray-700 font-medium mb-2">Emergency Contact</label>
-                            <input type="text" id="profile-emergency-contact" class="w-full p-3 border-2 border-teal-300 rounded-lg text-lg focus:ring-teal-green-primary focus:border-teal-green-primary" placeholder="Name and phone number">
-                        </div>
-                        <button type="submit" class="w-full bg-teal-green-primary hover:bg-teal-green-dark text-white font-bold py-3 px-4 rounded-xl transition-all duration-300 transform hover:scale-105 active:scale-95">Save Profile</button>
-                    </form>
-                </div>
-
-                <div class="card p-6 bg-soft-mint-white">
-                    <h3 class="text-2xl font-bold text-dark-navy mb-3 flex items-center">
-                        <i data-lucide="users" class="w-6 h-6 mr-2 text-green-500"></i> Connection Settings
-                    </h3>
-                    <div class="space-y-4">
-                        <div class="flex items-center justify-between p-3 bg-white rounded-lg border border-teal-200">
-                            <div class="flex items-center space-x-3">
-                                <i data-lucide="user-check" class="w-6 h-6 text-green-500"></i>
-                                <div>
-                                    <p class="font-semibold">Dr. Sarah Johnson</p>
-                                    <p class="text-sm text-gray-500">Primary Care Physician</p>
-                                }
-                            </div>
-                            <button class="px-4 py-2 bg-teal-green-primary text-white rounded-lg hover:bg-teal-green-dark transition-colors">Manage</button>
-                        </div>
-                        <div class="flex items-center justify-between p-3 bg-white rounded-lg border border-teal-200">
-                            <div class="flex items-center space-x-3">
-                                <i data-lucide="users-2" class="w-6 h-6 text-orange-500"></i>
-                                <div>
-                                    <p class="font-semibold">Family Members</p>
-                                    <p class="text-sm text-gray-500">3 connected family members</p>
-                                </div>
-                            </div>
-                            <button class="px-4 py-2 bg-teal-green-primary text-white rounded-lg hover:bg-teal-green-dark transition-colors">Manage</button>
-                        </div>
-                        <div class="flex items-center justify-between p-3 bg-white rounded-lg border border-teal-200">
-                            <div class="flex items-center space-x-3">
-                                <i data-lucide="activity" class="w-6 h-6 text-purple-500"></i>
-                                <div>
-                                    <p class="font-semibold">Health Devices</p>
-                                    <p class="text-sm text-gray-500">2 connected devices</p>
-                                </div>
-                            </div>
-                            <button class="px-4 py-2 bg-teal-green-primary text-white rounded-lg hover:bg-teal-green-dark transition-colors">Manage</button>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="card p-6 bg-blue-50">
-                    <h3 class="text-2xl font-bold text-dark-navy mb-3 flex items-center">
-                        <i data-lucide="database" class="w-6 h-6 mr-2 text-blue-500"></i> ABDM Data Export
-                    </h3>
-                    <p class="text-lg text-gray-600 mb-4">Export your health data in ABDM-compatible format for sharing with healthcare providers.</p>
-                    <div class="space-y-4">
-                        <div class="flex items-center justify-between p-4 bg-white rounded-lg border border-blue-200">
-                            <div>
-                                <p class="font-semibold">Health Data Summary</p>
-                                <p class="text-sm text-gray-500">Vitals, medications, and compliance data</p>
-                            </div>
-                            <button id="export-abdm-btn" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center space-x-2">
-                                <i data-lucide="download" class="w-4 h-4"></i>
-                                <span>Export CSV</span>
-                            </button>
-                        </div>
-                        <div class="flex items-center justify-between p-4 bg-white rounded-lg border border-blue-200">
-                            <div>
-                                <p class="font-semibold">Medication History</p>
-                                <p class="text-sm text-gray-500">Complete medication adherence records</p>
-                            </div>
-                            <button id="export-meds-btn" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center space-x-2">
-                                <i data-lucide="download" class="w-4 h-4"></i>
-                                <span>Export CSV</span>
-                            </button>
-                        </div>
-                    </div>
-                    <div id="export-status" class="mt-4 text-center font-semibold text-lg"></div>
-                </div>
-
-                <div class="card p-6">
-                    <h3 class="text-2xl font-bold mb-3 text-dark-navy flex items-center">
-                        <i data-lucide="activity" class="w-6 h-6 mr-2 text-blue-500"></i> Risk Forecasting
-                    </h3>
-                    <p class="text-lg text-gray-600 mb-4">Risk trend based on recent data:</p>
-                    
-                    <div id="chart-container" class="flex justify-around items-end h-48 border-b-2 border-gray-200 pt-2">
-                        </div>
-                    <div id="chart-labels" class="flex justify-around text-sm font-medium text-gray-500 mt-2">
-                        </div>
-                    <p id="predictive-insight" class="mt-4 p-3 bg-blue-50 border-l-4 border-blue-400 text-blue-800 text-lg font-medium">
-                        <span class="font-bold">Insight:</span> Keep your adherence above 80% to maintain a low-risk status.
-                    </p>
-                </div>
-
-                <div class="card p-6 bg-soft-mint-white">
-                    <h3 class="text-2xl font-bold text-dark-navy mb-3 flex items-center">
-                        <i data-lucide="send" class="w-6 h-6 mr-2 text-green-500"></i> Share Progress
-                    </h3>
-                    <p class="text-xl text-gray-600 mb-4">Securely share your health summary.</p>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <button id="alert-family-btn" class="w-full primary-btn bg-warm-yellow hover:bg-yellow-400 shadow-md flex items-center justify-center space-x-2">
-                            <i data-lucide="users" class="w-6 h-6"></i>
-                            <span>Send to Family</span>
-                        </button>
-                        <button id="alert-doctor-btn" class="w-full primary-btn bg-teal-green-primary hover:bg-teal-green-dark text-white shadow-md flex items-center justify-center space-x-2">
-                            <i data-lucide="user-check" class="w-6 h-6"></i>
-                            <span>Send to Doctor</span>
-                        </button>
-                    </div>
-                    <p id="alert-status" class="mt-4 text-center font-semibold text-xl"></p>
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <nav id="bottom-nav" class="fixed bottom-0 left-0 right-0 h-20 flex justify-around items-center">
-        <button onclick="changePage('home', this)" class="nav-item flex flex-col items-center justify-center active">
-            <i data-lucide="home" class="w-7 h-7"></i>
-            <span class="text-xs">Home</span>
-        </button>
-        <button onclick="changePage('todo', this)" class="nav-item flex flex-col items-center justify-center">
-            <i data-lucide="list-checks" class="w-7 h-7"></i>
-            <span class="text-xs">To Do</span>
-        </button>
-
-        <div id="alert-center-btn-wrapper" class="flex-shrink-0">
-            <button id="alert-center-btn"
-                    class="w-20 h-20 rounded-full flex items-center justify-center text-white text-3xl font-bold shadow-2xl transform transition duration-150"
-                    ontouchstart="handleAlertHoldStart(event)"
-                    ontouchend="handleAlertHoldEnd(event)"
-                    onmousedown="handleAlertHoldStart(event)"
-                    onmouseup="handleAlertHoldEnd(event)"
-                    ontouchmove="handleAlertHoldMove(event)">
-                <i data-lucide="siren" class="w-8 h-8"></i>
-            </button>
-        </div>
-
-        <button onclick="changePage('progress', this)" class="nav-item flex flex-col items-center justify-center">
-            <i data-lucide="trending-up" class="w-7 h-7"></i>
-            <span class="text-xs">Progress</span>
-        </button>
-        <button onclick="changePage('settings', this)" class="nav-item flex flex-col items-center justify-center">
-            <i data-lucide="settings" class="w-7 h-7"></i>
-            <span class="text-xs">Settings</span>
-        </button>
-    </nav>
-
-    <script>
-        // --- DATA & CONFIGURATION ---
-        const TODAY_DATE_KEY = new Date().toDateString();
-
-        const INITIAL_STATE = {
-            profile: {
-                name: "John Doe",
-                dob: "1975-05-15",
-                conditions: "Hypertension, Type 2 Diabetes",
-                emergencyContact: "Jane Doe - (555) 123-4567"
-            },
-            tasks: [
-                { id: 1, name: 'Take Blood Pressure', icon: 'Activity', isChecked: false, target: 120, unit: 'mmHg', time: '8:00 AM' },
-                { id: 2, name: 'Check Blood Glucose', icon: 'Activity', isChecked: false, target: 100, unit: 'mg/dL', time: '8:30 AM' },
-                { id: 3, name: 'Take Morning Medication', icon: 'Pill', isChecked: false, target: 1, unit: 'pill', time: '9:00 AM' },
-                { id: 4, name: '30 min Walk/Exercise', icon: 'Footprints', isChecked: false, target: 30, unit: 'min', time: '5:00 PM' },
-                { id: 5, name: 'Take Evening Medication', icon: 'Pill', isChecked: false, target: 1, unit: 'pill', time: '8:00 PM' },
-            ],
-            vitals: {
-                hr: 72,
-                bp: '130/80', // Slightly high for alert demo
-                bg: 105,
-                spo2: 97
-            },
-            medicationHistory: [
-                { date: 'Mon', meds: ['Aspirin (AM)', 'Metformin (AM)'], nextDose: 'Aspirin at 8:00 PM', dosesTaken: 2, totalDoses: 3 },
-                { date: 'Sun', meds: ['Aspirin (AM)', 'Metformin (AM)', 'Aspirin (PM)'], nextDose: 'Aspirin (AM)', dosesTaken: 3, totalDoses: 3 },
-            ],
-            gamification: {
-                streak: 3,
-                level: 5,
-                progressToNextLevel: 65,
-                badges: [
-                    { id: 1, name: 'First Check-in', icon: 'CheckCircle', earned: true, color: 'bg-yellow-400' },
-                    { id: 2, name: 'Consistent Care', icon: 'CalendarCheck', earned: false, color: 'bg-gray-300' },
-                    { id: 3, name: 'Low Risk Status', icon: 'Shield', earned: false, color: 'bg-gray-300' },
-                    { id: 4, name: 'Active Achiever', icon: 'Footprints', earned: true, color: 'bg-green-400' },
-                    { id: 5, name: 'Perfect Week', icon: 'Star', earned: false, color: 'bg-gray-300' },
-                    { id: 6, name: 'Vitals Master', icon: 'Activity', earned: false, color: 'bg-gray-300' },
-                    { id: 7, name: 'Medication Pro', icon: 'Pill', earned: false, color: 'bg-gray-300' },
-                    { id: 8, name: 'Health Champion', icon: 'Award', earned: false, color: 'bg-gray-300' },
-                    { id: 9, name: 'Early Bird', icon: 'Sunrise', earned: false, color: 'bg-gray-300' },
-                    { id: 10, name: 'Night Owl', icon: 'Moon', earned: false, color: 'bg-gray-300' },
-                ],
-            },
-            healthData: [
-                { day: 'Mon', score: 75, risk: 25 },
-                { day: 'Tue', score: 80, risk: 20 },
-                { day: 'Wed', score: 85, risk: 15 },
-                { day: 'Thu', score: 90, risk: 10 },
-                { day: 'Fri', score: 82, risk: 18 },
-                { day: 'Sat', score: 95, risk: 5 },
-                { day: 'Sun', score: 98, risk: 2 },
-            ],
-            currentPage: 'home',
-            lastUpdatedDate: null,
-            taskIdCounter: 6 // To ensure new tasks get unique IDs
-        };
-
-        let appState = {};
-        let alertTimeout = null;
-        const ALERT_HOLD_DURATION = 3000;
-        const alertBtn = document.getElementById('alert-center-btn');
-
-        // --- LOCAL STORAGE FUNCTIONS (Unchanged) ---
-        const loadState = () => {
-            const savedState = localStorage.getItem('rpmCoachState');
-            if (savedState) {
-                appState = JSON.parse(savedState);
-                
-                // Reset tasks if it's a new day
-                if (appState.lastUpdatedDate !== TODAY_DATE_KEY) {
-                    appState.tasks = INITIAL_STATE.tasks.map(t => ({ ...t, isChecked: false }));
-                    appState.lastUpdatedDate = TODAY_DATE_KEY;
-                }
-            } else {
-                appState = { 
-                    ...INITIAL_STATE, 
-                    tasks: INITIAL_STATE.tasks.map(t => ({ ...t })),
-                    lastUpdatedDate: TODAY_DATE_KEY
-                };
-            }
-        };
-
-        const saveState = () => {
-            localStorage.setItem('rpmCoachState', JSON.stringify(appState));
-        };
-
-        // --- CELEBRATION FUNCTIONS (Unchanged) ---
-        const triggerCelebration = (type = 'achievement') => {
-            // Confetti celebration
-            confetti({
-                particleCount: 150,
-                spread: 70,
-                origin: { y: 0.6 }
-            });
-            
-            // Additional effects based on type
-            if (type === 'levelup') {
-                setTimeout(() => {
-                    confetti({
-                        particleCount: 100,
-                        angle: 60,
-                        spread: 80,
-                        origin: { x: 0 }
-                    });
-                    confetti({
-                        particleCount: 100,
-                        angle: 120,
-                        spread: 80,
-                        origin: { x: 1 }
-                    });
-                }, 250);
-            }
-            
-            // Show achievement popup
-            const popup = document.getElementById('achievement-popup');
-            const achievementText = document.getElementById('achievement-text');
-            
-            if (type === 'levelup') {
-                achievementText.textContent = `You've reached Level ${appState.gamification.level}!`;
-            } else {
-                achievementText.textContent = "You've earned a new badge!";
-            }
-            
-            // Ensure HTML for popup exists before showing
-            if(popup) {
-                popup.classList.remove('hidden');
-                setTimeout(() => {
-                    popup.classList.add('hidden');
-                }, 3000);
-            }
-        };
-
-        // --- BADGE CHECKING & UTILITY FUNCTIONS (Unchanged for core logic) ---
-        const checkForNewBadges = (oldScore, newScore) => {
-            // Existing logic...
-            const newlyEarnedBadges = [];
-            
-            // Check for Perfect Week badge (7-day streak)
-            if (appState.gamification.streak >= 7) {
-                const badge = appState.gamification.badges.find(b => b.id === 5);
-                if (badge && !badge.earned) {
-                    badge.earned = true;
-                    badge.color = 'bg-purple-400';
-                    newlyEarnedBadges.push(badge);
-                }
-            }
-            
-            // Check for Vitals Master badge (consistent vitals logging)
-            const vitalsLogged = appState.healthData.filter(d => d.score > 80).length;
-            if (vitalsLogged >= 5) {
-                const badge = appState.gamification.badges.find(b => b.id === 6);
-                if (badge && !badge.earned) {
-                    badge.earned = true;
-                    badge.color = 'bg-blue-400';
-                    newlyEarnedBadges.push(badge);
-                }
-            }
-            
-            // Check for Medication Pro badge (perfect medication adherence)
-            if (newScore === 100) {
-                const badge = appState.gamification.badges.find(b => b.id === 7);
-                if (badge && !badge.earned) {
-                    badge.earned = true;
-                    badge.color = 'bg-green-400';
-                    newlyEarnedBadges.push(badge);
-                }
-            }
-            
-            // Check for Health Champion badge (level 10)
-            if (appState.gamification.level >= 10) {
-                const badge = appState.gamification.badges.find(b => b.id === 8);
-                if (badge && !badge.earned) {
-                    badge.earned = true;
-                    badge.color = 'bg-red-400';
-                    newlyEarnedBadges.push(badge);
-                }
-            }
-            
-            // Return any newly earned badges
-            return newlyEarnedBadges;
-        };
-
-        const calculateHealthScore = () => {
-            const completed = appState.tasks.filter(t => t.isChecked).length;
-            const total = appState.tasks.length;
-            return total > 0 ? Math.round((completed / total) * 100) : 0;
-        };
-
-        const checkLevelUp = (oldScore, newScore) => {
-            const oldLevel = appState.gamification.level;
-            
-            if (newScore > 90 && oldScore <= 90) {
-                appState.gamification.level += 1;
-                appState.gamification.progressToNextLevel = 10;
-                showLevelUpAnimation(appState.gamification.level);
-                
-                // Earn a badge if available
-                const lowRiskBadge = appState.gamification.badges.find(b => b.id === 3);
-                if (lowRiskBadge && !lowRiskBadge.earned) {
-                    lowRiskBadge.earned = true;
-                    lowRiskBadge.color = 'bg-yellow-400';
-                }
-            } else if (newScore > oldScore) {
-                appState.gamification.progressToNextLevel = Math.min(100, appState.gamification.progressToNextLevel + (newScore - oldScore) / 2);
-            }
-            
-            // Check if level increased to trigger celebration
-            if (appState.gamification.level > oldLevel) {
-                triggerCelebration('levelup');
-            }
-        };
+        // Common
+        'common.greeting.morning': 'Good Morning!',
+        'common.greeting.afternoon': 'Good Afternoon!',
+        'common.greeting.evening': 'Good Evening!',
+        'common.compliance': 'Compliance Score',
+        'common.today': 'Today',
+        'common.tomorrow': 'Tomorrow',
+        'common.add': 'Add',
+        'common.save': 'Save',
+        'common.cancel': 'Cancel',
+        'common.edit': 'Edit',
+        'common.delete': 'Delete',
+        'common.share': 'Share',
         
-        const showLevelUpAnimation = (newLevel) => {
-            const modal = document.getElementById('levelup-modal');
-            document.getElementById('new-level-display').textContent = newLevel;
-            modal.classList.remove('hidden');
-            // Removed the setTimeout to re-hide the modal as the click handler takes care of it
-        };
+        // Home Page
+        'home.title': 'Health Dashboard',
+        'home.compliance.title': "Today's Compliance Score",
+        'home.vitals.title': 'Live Vitals',
+        'home.vitals.hr': 'Heart Rate',
+        'home.vitals.bp': 'Blood Pressure',
+        'home.vitals.bg': 'Blood Glucose',
+        'home.vitals.spo2': 'Oxygen Saturation',
+        'home.vitals.share': 'Share with Care Team',
+        'home.medication.title': 'Medication Tracker',
+        'home.medication.doses': 'Doses Taken Today',
+        'home.medication.next': 'Next Dose',
+        'home.activity.title': 'Daily Activity',
+        'home.activity.steps': 'Steps',
+        'home.activity.water': 'Water (glasses)',
+        'home.activity.sleep': 'Sleep',
         
-        const getVitalsStatus = (vitalsKey) => {
-            const vitals = appState.vitals;
-            let status = 'normal';
-
-            switch (vitalsKey) {
-                case 'hr':
-                    if (vitals.hr > 90 || vitals.hr < 60) status = 'warning';
-                    break;
-                case 'bp':
-                    const [systolic, diastolic] = vitals.bp.split('/').map(Number);
-                    if (systolic > 130 || diastolic > 85) status = 'warning';
-                    if (systolic >= 140 || diastolic >= 90) status = 'critical';
-                    break;
-                case 'bg':
-                    if (vitals.bg > 120 || vitals.bg < 70) status = 'warning';
-                    break;
-                case 'spo2':
-                    if (vitals.spo2 < 95) status = 'critical';
-                    if (vitals.spo2 < 97) status = 'warning';
-                    break;
-            }
-            return status;
-        };
-
-        const getStatusStyles = (status) => {
-            switch (status) {
-                case 'critical': return { border: 'border-soft-red-critical', bg: 'bg-red-100', text: 'text-red-700', icon: 'text-red-700' };
-                case 'warning': return { border: 'border-warm-yellow', bg: 'bg-yellow-100', text: 'text-yellow-700', icon: 'text-yellow-700' };
-                case 'normal':
-                default: return { border: 'border-teal-green-primary', bg: 'bg-green-100', text: 'text-green-700', icon: 'text-green-700' };
-            }
-        };
-
-        // --- UI RENDER FUNCTIONS ---
-        const renderHeader = () => {
-            document.getElementById('header-user-name').textContent = appState.profile.name;
-            
-            // RENDER HOME PAGE VITALS
-            const vitalsMap = {
-                'hr': { el: 'hr-display-home', icon: 'heart' },
-                'bp': { el: 'bp-display-home', icon: 'thermometer-half' },
-                'bg': { el: 'bg-display-home', icon: 'droplet' },
-                'spo2': { el: 'spo2-display-home', icon: 'wind' }
-            };
-
-            for (const key in vitalsMap) {
-                const el = document.getElementById(vitalsMap[key].el);
-                if (el) el.textContent = appState.vitals[key];
-                
-                // Apply conditional styling to the container
-                const containerEl = document.getElementById(`vitals-${key}`);
-                if (containerEl) {
-                    const status = getVitalsStatus(key);
-                    const styles = getStatusStyles(status);
-
-                    // Clear existing classes and apply new ones
-                    containerEl.className = `p-3 rounded-lg flex items-center space-x-2 border-l-4 ${styles.border} ${styles.bg}`;
-                    
-                    // Update icon color
-                    const iconEl = containerEl.querySelector(`i[data-lucide="${vitalsMap[key].icon}"]`);
-                    if(iconEl) {
-                        iconEl.className = `w-5 h-5 ${styles.icon}`;
-                    }
-                }
-            }
-
-            // Medication Tracker (Home Page)
-            const todayMeds = appState.medicationHistory[0];
-            if (todayMeds) {
-                const dosesTaken = appState.tasks.filter(t => t.icon === 'Pill' && t.isChecked).length;
-                const totalDoses = appState.tasks.filter(t => t.icon === 'Pill').length;
-
-                const nextDoseText = todayMeds.nextDose || 'None Scheduled';
-                const nextDoseEl = document.getElementById('next-med-display-home');
-                if(nextDoseEl) nextDoseEl.textContent = nextDoseText;
-                
-                const dosesDisplay = document.getElementById('doses-taken-display');
-                if(dosesDisplay) dosesDisplay.textContent = `${dosesTaken}/${totalDoses}`;
-
-                const progressRing = document.getElementById('med-progress-ring');
-                const progressText = document.getElementById('med-progress-text');
-
-                if (progressRing && progressText) {
-                    const percentage = totalDoses > 0 ? Math.round((dosesTaken / totalDoses) * 100) : 0;
-                    const circumference = 2 * Math.PI * 40; // R=40
-                    const offset = circumference - (percentage / 100) * circumference;
-
-                    progressRing.style.strokeDashoffset = offset;
-                    progressText.textContent = `${percentage}%`;
-                    
-                    // Change color based on completion
-                    progressRing.classList.remove('text-teal-green-primary', 'text-yellow-500', 'text-soft-red-critical');
-                    if (percentage === 100) {
-                        progressRing.classList.add('text-teal-green-primary');
-                    } else if (percentage >= 50) {
-                        progressRing.classList.add('text-yellow-500');
-                    } else {
-                        progressRing.classList.add('text-soft-red-critical');
-                    }
-                }
-            }
-        };
-
-        const renderHealthScore = (score) => {
-            // This is largely replaced by the Live Vitals Overview card in the new design.
-            // The score calculation logic remains for gamification/reports but no longer has a dedicated large circular card.
-        };
-
-        const renderMedLog = () => {
-            // This section is removed from the new Home Page design.
-        };
-
-        const renderVitalsForm = () => {
-            // Form inputs are hidden but values are kept in state.
-        };
-
-        const renderTasks = () => {
-            const taskListEl = document.getElementById('task-list');
-            if (!taskListEl) return;
-
-            taskListEl.innerHTML = appState.tasks.map(task => {
-                const isDone = task.isChecked;
-                const statusText = isDone ? 'Done' : (task.time < new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }) ? 'Pending' : 'Upcoming');
-
-                const checkedClass = isDone ? 'task-done' : 'bg-white border-gray-300 hover:bg-soft-mint-white';
-                const iconBgClass = isDone ? 'bg-teal-green-primary' : (statusText === 'Pending' ? 'bg-soft-red-critical' : 'bg-warm-yellow');
-                const iconColorClass = 'text-white';
-                const textClass = isDone ? 'text-teal-green-primary line-through' : 'text-dark-navy';
-                const statusIcon = isDone ? 'check-circle' : (statusText === 'Pending' ? 'alert-triangle' : 'clock');
-                const statusIconColor = isDone ? 'text-teal-green-primary' : (statusText === 'Pending' ? 'text-soft-red-critical' : 'text-warm-yellow');
-
-                return `
-                    <button
-                        onclick="toggleTask(${task.id})"
-                        class="w-full p-4 rounded-xl text-left flex items-center justify-between text-xl font-semibold transition-all duration-500 shadow-lg border-2 ${checkedClass}"
-                    >
-                        <div class="flex items-center space-x-4">
-                            <div class="p-3 rounded-full ${iconBgClass} ${iconColorClass} flex-shrink-0">
-                                <i data-lucide="${task.icon}" class="w-6 h-6"></i>
-                            </div>
-                            <div class="flex flex-col text-left">
-                                <span class="${textClass} text-lg">${task.name}</span>
-                                <span class="text-sm text-gray-500">${task.time}</span>
-                            </div>
-                        </div>
-                        <div class="flex flex-col items-end">
-                            <i data-lucide="${statusIcon}" class="w-6 h-6 ${statusIconColor} ${isDone ? 'animate-pulse' : ''}"></i>
-                            <span class="text-xs font-bold ${statusIconColor.replace('text', 'text-').replace('-500', '-700')}">${statusText}</span>
-                        </div>
-                    </button>
-                `;
-            }).join('');
-        };
+        // Alerts
+        'alerts.bp': 'ALERT: BP reading slightly high. Please recheck in 30 mins.',
+        'alerts.doctor': 'Gentle Reminder: Doctor visit tomorrow at 10 AM.',
         
-        // Add Task Handler
-        document.getElementById('add-task-form')?.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const title = document.getElementById('new-task-title').value;
-            const time = document.getElementById('new-task-time').value;
-            const type = document.getElementById('new-task-type').value;
-
-            if (title && time && type) {
-                const newTask = {
-                    id: appState.taskIdCounter++,
-                    name: title,
-                    icon: type,
-                    isChecked: false,
-                    target: null,
-                    unit: 'n/a',
-                    time: new Date(`2000/01/01 ${time}`).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
-                };
-                appState.tasks.push(newTask);
-                document.getElementById('new-task-title').value = '';
-                document.getElementById('new-task-time').value = '';
-                renderUI();
-                saveState();
-            }
-        });
+        // To-Do Page
+        'todo.title': 'My Health Milestones Today',
+        'todo.remaining': 'milestones left',
+        'todo.add.title': 'Add New Milestone',
+        'todo.add.placeholder': 'Task Title (e.g., Take BP Pill)',
+        'todo.add.type': 'Task Type',
+        'todo.add.submit': 'Add Milestone',
+        'todo.preview.title': "Tomorrow's Preview",
+        'todo.status.complete': 'Complete',
+        'todo.status.pending': 'Pending',
+        'todo.status.upcoming': 'Upcoming',
         
-        // --- Remaining render functions (Progress, Profile, Chart) are largely unchanged in logic, but use the new colors/styles for consistency ---
-
-        const renderProgress = () => {
-            const game = appState.gamification;
-            const streakDisplayEl = document.getElementById('streak-display');
-            const levelDisplayEl = document.getElementById('level-display');
-            const progressBarEl = document.getElementById('progress-bar');
-            const badgesContainerEl = document.getElementById('badges-container');
-            
-            if (streakDisplayEl) streakDisplayEl.textContent = game.streak;
-            if (levelDisplayEl) levelDisplayEl.textContent = game.level;
-            if (progressBarEl) progressBarEl.style.width = `${game.progressToNextLevel}%`;
-
-            if (badgesContainerEl) {
-                badgesContainerEl.innerHTML = game.badges.map(badge => {
-                    const color = badge.earned ? badge.color.replace('bg-', 'bg-') : 'bg-gray-300';
-                    const hover = badge.earned ? 'hover:scale-110' : '';
-                    const animation = badge.earned ? 'animate-float' : '';
-
-                    return `
-                        <div class="p-4 flex flex-col items-center rounded-xl ${color} shadow-lg transition duration-300 ${hover} ${animation} cursor-pointer badge-earned" title="${badge.name}">
-                            <i data-lucide="${badge.icon}" class="w-8 h-8 ${badge.earned ? 'text-gray-800' : 'text-gray-600'}"></i>
-                            <span class="text-xs font-semibold mt-1 text-center">${badge.name}</span>
-                        </div>
-                    `;
-                }).join('');
-            }
-        };
-
-        const renderProfileForm = () => {
-            document.getElementById('profile-name').value = appState.profile.name;
-            document.getElementById('profile-dob').value = appState.profile.dob;
-            document.getElementById('profile-conditions').value = appState.profile.conditions;
-            document.getElementById('profile-emergency-contact').value = appState.profile.emergencyContact;
-        };
+        // Progress Page
+        'progress.title': 'Your Progress',
+        'progress.streak': 'Current Streak',
+        'progress.streak.days': 'days',
+        'progress.level': 'Your Current Health Level:',
+        'progress.badges': 'Badges Earned',
         
-        const renderChart = () => {
-            const chartContainerEl = document.getElementById('chart-container');
-            const chartLabelsEl = document.getElementById('chart-labels');
-
-            if (!chartContainerEl || !chartLabelsEl) return;
-
-            chartContainerEl.innerHTML = '';
-            chartLabelsEl.innerHTML = '';
-            
-            appState.healthData.slice(-7).forEach(data => {
-                const riskHeight = data.risk * 2;
-                const barColor = data.risk < 10 ? 'bg-teal-green-primary' : data.risk < 20 ? 'bg-warm-yellow' : 'bg-soft-red-critical';
-
-                const barEl = document.createElement('div');
-                barEl.className = `w-1/8 mx-1 rounded-t-lg shadow-lg flex flex-col justify-end items-center text-white font-bold text-xs ${barColor} chart-bar`;
-                barEl.style.height = `${riskHeight}px`;
-
-                const riskTextEl = document.createElement('span');
-                riskTextEl.textContent = `${data.risk}%`;
-                riskTextEl.className = 'p-1';
-                barEl.appendChild(riskTextEl);
-                chartContainerEl.appendChild(barEl);
-
-                const labelEl = document.createElement('div');
-                labelEl.className = 'w-1/8 text-center';
-                labelEl.textContent = data.day;
-                chartLabelsEl.appendChild(labelEl);
-            });
-        };
-
-        // --- EVENT HANDLERS (Adjusted for new colors/elements) ---
-        window.toggleTask = (id) => {
-            const oldScore = calculateHealthScore();
-            appState.tasks = appState.tasks.map(task =>
-                task.id === id ? { ...task, isChecked: !task.isChecked } : task
-            );
-            const newScore = calculateHealthScore();
-            
-            // Trigger confetti on completion
-            const task = appState.tasks.find(t => t.id === id);
-            if(task && task.isChecked) {
-                confetti({ particleCount: 50, spread: 60 });
-            }
-
-            // Update doses taken for medication tracker
-            const dosesTaken = appState.tasks.filter(t => t.icon === 'Pill' && t.isChecked).length;
-            const totalDoses = appState.tasks.filter(t => t.icon === 'Pill').length;
-            if(appState.medicationHistory.length > 0) {
-                 appState.medicationHistory[0].dosesTaken = dosesTaken;
-                 appState.medicationHistory[0].totalDoses = totalDoses;
-            }
-            
-            checkLevelUp(oldScore, newScore);
-            const newBadges = checkForNewBadges(oldScore, newScore);
-            
-            if (newBadges.length > 0) {
-                triggerCelebration('badge');
-            }
-            
-            renderUI();
-            saveState();
-        };
-
-        document.getElementById('vitals-form')?.addEventListener('submit', (e) => {
-            e.preventDefault();
-            
-            const newVitals = {
-                hr: parseInt(document.getElementById('input-hr').value) || appState.vitals.hr,
-                bp: document.getElementById('input-bp').value || appState.vitals.bp,
-                bg: parseInt(document.getElementById('input-bg').value) || appState.vitals.bg,
-                spo2: parseInt(document.getElementById('input-spo2').value) || appState.vitals.spo2,
-            };
-
-            appState.vitals = newVitals;
-            renderUI();
-            saveState();
-
-            document.getElementById('vitals-form').querySelector('button').textContent = 'Vitals Saved!';
-            setTimeout(() => {
-                document.getElementById('vitals-form').querySelector('button').textContent = 'Save Vitals';
-            }, 1500);
-        });
-
-        document.getElementById('profile-form')?.addEventListener('submit', (e) => {
-            e.preventDefault();
-            
-            appState.profile = {
-                name: document.getElementById('profile-name').value,
-                dob: document.getElementById('profile-dob').value,
-                conditions: document.getElementById('profile-conditions').value,
-                emergencyContact: document.getElementById('profile-emergency-contact').value
-            };
-            
-            renderUI();
-            saveState();
-            
-            // Show confirmation
-            const button = document.getElementById('profile-form').querySelector('button');
-            const originalText = button.textContent;
-            button.textContent = 'Profile Saved!';
-            button.classList.remove('bg-teal-green-primary');
-            button.classList.add('bg-green-500');
-            
-            setTimeout(() => {
-                button.textContent = originalText;
-                button.classList.remove('bg-green-500');
-                button.classList.add('bg-teal-green-primary');
-            }, 1500);
-        });
-
-        // ABDM Export Functions (Unchanged)
-        document.getElementById('export-abdm-btn')?.addEventListener('click', () => {
-            const exportStatus = document.getElementById('export-status');
-            exportStatus.className = 'mt-4 text-center font-semibold text-lg text-blue-600';
-            exportStatus.innerHTML = `<i data-lucide="loader" class="w-6 h-6 inline-block mr-2 animate-spin"></i> Preparing health data export...`;
-            window.createLucideIcons();
-            
-            // Simulate export process
-            setTimeout(() => {
-                // Create CSV content
-                const headers = "Date,Heart Rate,Blood Pressure,Blood Glucose,SpO2,Compliance Score\n";
-                const rows = appState.healthData.map(data => 
-                    `${data.day},${appState.vitals.hr},${appState.vitals.bp},${appState.vitals.bg},${appState.vitals.spo2},${data.score}`
-                ).join("\n");
-                const csvContent = headers + rows;
-                
-                // Create download link
-                const blob = new Blob([csvContent], { type: 'text/csv' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `health_data_${new Date().toISOString().split('T')[0]}.csv`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-                
-                exportStatus.className = 'mt-4 text-center font-semibold text-lg text-green-600';
-                exportStatus.innerHTML = `<i data-lucide="check-circle" class="w-6 h-6 inline-block mr-2"></i> Health data exported successfully!`;
-                window.createLucideIcons();
-                
-                setTimeout(() => {
-                    exportStatus.innerHTML = '';
-                }, 3000);
-            }, 1500);
-        });
-
-        document.getElementById('export-meds-btn')?.addEventListener('click', () => {
-            const exportStatus = document.getElementById('export-status');
-            exportStatus.className = 'mt-4 text-center font-semibold text-lg text-blue-600';
-            exportStatus.innerHTML = `<i data-lucide="loader" class="w-6 h-6 inline-block mr-2 animate-spin"></i> Preparing medication data export...`;
-            window.createLucideIcons();
-            
-            // Simulate export process
-            setTimeout(() => {
-                // Create CSV content for medications
-                const headers = "Date,Medication,Status\n";
-                const rows = appState.medicationHistory.flatMap(day => 
-                    day.meds.map(med => `${day.date},${med},Taken`)
-                ).join("\n");
-                const csvContent = headers + rows;
-                
-                // Create download link
-                const blob = new Blob([csvContent], { type: 'text/csv' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `medication_data_${new Date().toISOString().split('T')[0]}.csv`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-                
-                exportStatus.className = 'mt-4 text-center font-semibold text-lg text-green-600';
-                exportStatus.innerHTML = `<i data-lucide="check-circle" class="w-6 h-6 inline-block mr-2"></i> Medication data exported successfully!`;
-                window.createLucideIcons();
-                
-                setTimeout(() => {
-                    exportStatus.innerHTML = '';
-                }, 3000);
-            }, 1500);
-        });
-
-        window.changePage = (pageName, buttonEl) => {
-            if (pageName === appState.currentPage) return;
-
-            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
-            document.getElementById(`page-${pageName}`).classList.add('active');
-            
-            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-            if(buttonEl) {
-                buttonEl.classList.add('active');
-            }
-
-            appState.currentPage = pageName;
-            renderUI();
-        };
-
-        // --- ALERT LOGIC (Unchanged) ---
-        const triggerSmartAlert = async (receiverType, message) => {
-            const receiver = receiverType === 'family' ? 'Family Member' : 'Healthcare Provider';
-            const alertStatusEl = document.getElementById('alert-status');
-            
-            alertStatusEl.className = 'mt-4 text-center font-semibold text-xl text-teal-600';
-            alertStatusEl.innerHTML = `<i data-lucide="loader" class="w-6 h-6 inline-block mr-2 animate-spin"></i> Sending alert to ${receiver}...`;
-            window.createLucideIcons();
-
-            await new Promise(resolve => setTimeout(resolve, 1500));
-
-            console.log(`[Smart Alert] Sent to ${receiver}: ${message}`);
-            alertStatusEl.className = 'mt-4 text-center font-semibold text-xl text-green-600';
-            alertStatusEl.innerHTML = `<i data-lucide="check-circle" class="w-6 h-6 inline-block mr-2"></i> Alert sent successfully to ${receiver}!`;
-            window.createLucideIcons();
-
-            setTimeout(() => {
-                alertStatusEl.innerHTML = '';
-            }, 3000);
-        };
-
-        window.handleAlertHoldStart = (e) => {
-            e.preventDefault();
-            if (alertTimeout) clearTimeout(alertTimeout);
-            
-            alertBtn.classList.add('alert-active-pulse');
-            
-            alertTimeout = setTimeout(() => {
-                alertBtn.classList.remove('alert-active-pulse');
-                alertBtn.classList.add('bg-red-900', 'ring-8', 'ring-red-400');
-
-                const emergencyMessage = `EMERGENCY ALERT: Patient activated the 3-second hold. Current Vitals: HR ${appState.vitals.hr}, BP ${appState.vitals.bp}.`;
-                triggerSmartAlert('doctor', emergencyMessage);
-
-                setTimeout(() => {
-                    alertBtn.classList.remove('bg-red-900', 'ring-8', 'ring-red-400');
-                }, 3000);
-
-            }, ALERT_HOLD_DURATION);
-        };
-
-        window.handleAlertHoldEnd = (e) => {
-            e.preventDefault();
-            if (alertTimeout) {
-                clearTimeout(alertTimeout);
-                alertTimeout = null;
-            }
-            alertBtn.classList.remove('alert-active-pulse');
-        };
+        // Settings Page
+        'settings.title': 'Settings & Reports',
+        'settings.profile.title': 'Profile Settings',
+        'settings.profile.name': 'Full Name',
+        'settings.profile.dob': 'Date of Birth',
+        'settings.profile.conditions': 'Health Conditions',
+        'settings.profile.emergency': 'Emergency Contact',
+        'settings.connections.title': 'Connection Settings',
+        'settings.export.title': 'ABDM Data Export',
+        'settings.export.description': 'Export your health data in ABDM-compatible format for sharing with healthcare providers.',
+        'settings.export.health': 'Health Data Summary',
+        'settings.export.meds': 'Medication History',
+        'settings.risk.title': 'Risk Forecasting',
+        'settings.risk.insight': 'Insight: Keep your adherence above 80% to maintain a low-risk status.',
+        'settings.share.title': 'Share Progress',
+        'settings.share.description': 'Securely share your health summary.',
+        'settings.share.family': 'Send to Family',
+        'settings.share.doctor': 'Send to Doctor',
         
-        window.handleAlertHoldMove = (e) => {
-            // Prevent accidental cancels on mobile
+        // Medical Terms
+        'medical.bpm': 'BPM',
+        'medical.mmhg': 'mmHg',
+        'medical.mgdl': 'mg/dL',
+        'medical.spo2': 'SpO₂ %'
+      },
+      hi: {
+        // Navigation
+        'nav.home': 'होम',
+        'nav.todo': 'कार्य सूची',
+        'nav.progress': 'प्रगति',
+        'nav.settings': 'सेटिंग्स',
+        
+        // Common
+        'common.greeting.morning': 'सुप्रभात!',
+        'common.greeting.afternoon': 'नमस्कार!',
+        'common.greeting.evening': 'शुभ संध्या!',
+        'common.compliance': 'अनुपालन स्कोर',
+        'common.today': 'आज',
+        'common.tomorrow': 'कल',
+        'common.add': 'जोड़ें',
+        'common.save': 'सेव करें',
+        'common.cancel': 'रद्द करें',
+        'common.edit': 'संपादित करें',
+        'common.delete': 'हटाएं',
+        'common.share': 'साझा करें',
+        
+        // Home Page
+        'home.title': 'स्वास्थ्य डैशबोर्ड',
+        'home.compliance.title': 'आज का अनुपालन स्कोर',
+        'home.vitals.title': 'लाइव वाइटल्स',
+        'home.vitals.hr': 'हृदय गति',
+        'home.vitals.bp': 'ब्लड प्रेशर',
+        'home.vitals.bg': 'ब्लड शुगर',
+        'home.vitals.spo2': 'ऑक्सीजन स्तर',
+        'home.vitals.share': 'केयर टीम के साथ साझा करें',
+        'home.medication.title': 'दवाई ट्रैकर',
+        'home.medication.doses': 'आज ली गई खुराक',
+        'home.medication.next': 'अगली खुराक',
+        'home.activity.title': 'दैनिक गतिविधि',
+        'home.activity.steps': 'कदम',
+        'home.activity.water': 'पानी (गिलास)',
+        'home.activity.sleep': 'नींद',
+        
+        // Alerts
+        'alerts.bp': 'अलर्ट: बीपी रीडिंग थोड़ी अधिक है। कृपया 30 मिनट में फिर से जांचें।',
+        'alerts.doctor': 'स्मरण: कल सुबह 10 बजे डॉक्टर से मिलने जाना है।',
+        
+        // To-Do Page
+        'todo.title': 'आज के मेरे स्वास्थ्य लक्ष्य',
+        'todo.remaining': 'लक्ष्य शेष',
+        'todo.add.title': 'नया लक्ष्य जोड़ें',
+        'todo.add.placeholder': 'कार्य का नाम (जैसे, बीपी की दवा लें)',
+        'todo.add.type': 'कार्य प्रकार',
+        'todo.add.submit': 'लक्ष्य जोड़ें',
+        'todo.preview.title': 'कल का पूर्वावलोकन',
+        'todo.status.complete': 'पूर्ण',
+        'todo.status.pending': 'लंबित',
+        'todo.status.upcoming': 'आगामी',
+        
+        // Progress Page
+        'progress.title': 'आपकी प्रगति',
+        'progress.streak': 'वर्तमान स्ट्रीक',
+        'progress.streak.days': 'दिन',
+        'progress.level': 'आपका वर्तमान स्वास्थ्य स्तर:',
+        'progress.badges': 'अर्जित बैज',
+        
+        // Settings Page
+        'settings.title': 'सेटिंग्स और रिपोर्ट्स',
+        'settings.profile.title': 'प्रोफाइल सेटिंग्स',
+        'settings.profile.name': 'पूरा नाम',
+        'settings.profile.dob': 'जन्मतिथि',
+        'settings.profile.conditions': 'स्वास्थ्य स्थितियां',
+        'settings.profile.emergency': 'आपातकालीन संपर्क',
+        'settings.connections.title': 'कनेक्शन सेटिंग्स',
+        'settings.export.title': 'एबीडीएम डेटा निर्यात',
+        'settings.export.description': 'स्वास्थ्य सेवा प्रदाताओं के साथ साझा करने के लिए एबीडीएम-संगत प्रारूप में अपना स्वास्थ्य डेटा निर्यात करें।',
+        'settings.export.health': 'स्वास्थ्य डेटा सारांश',
+        'settings.export.meds': 'दवाई इतिहास',
+        'settings.risk.title': 'जोखिम पूर्वानुमान',
+        'settings.risk.insight': 'अंतर्दृष्टि: कम जोखिम स्थिति बनाए रखने के लिए अपने अनुपालन को 80% से ऊपर रखें।',
+        'settings.share.title': 'प्रगति साझा करें',
+        'settings.share.description': 'अपना स्वास्थ्य सारांश सुरक्षित रूप से साझा करें।',
+        'settings.share.family': 'परिवार को भेजें',
+        'settings.share.doctor': 'डॉक्टर को भेजें',
+        
+        // Medical Terms
+        'medical.bpm': 'बीपीएम',
+        'medical.mmhg': 'mmHg',
+        'medical.mgdl': 'mg/dL',
+        'medical.spo2': 'SpO₂ %'
+      },
+      bn: {
+        // Navigation
+        'nav.home': 'হোম',
+        'nav.todo': 'করণীয়',
+        'nav.progress': 'প্রগতি',
+        'nav.settings': 'সেটিংস',
+        
+        // Common
+        'common.greeting.morning': 'সুপ্রভাত!',
+        'common.greeting.afternoon': 'শুভ অপরাহ্ন!',
+        'common.greeting.evening': 'শুভ সন্ধ্যা!',
+        'common.compliance': 'সম্মতি স্কোর',
+        'common.today': 'আজ',
+        'common.tomorrow': 'আগামীকাল',
+        'common.add': 'যোগ করুন',
+        'common.save': 'সংরক্ষণ করুন',
+        'common.cancel': 'বাতিল করুন',
+        'common.edit': 'সম্পাদনা করুন',
+        'common.delete': 'মুছুন',
+        'common.share': 'শেয়ার করুন',
+        
+        // Home Page
+        'home.title': 'স্বাস্থ্য ড্যাশবোর্ড',
+        'home.compliance.title': 'আজকের সম্মতি স্কোর',
+        'home.vitals.title': 'লাইভ ভাইটালস',
+        'home.vitals.hr': 'হৃদস্পন্দন',
+        'home.vitals.bp': 'রক্তচাপ',
+        'home.vitals.bg': 'রক্তে শর্করা',
+        'home.vitals.spo2': 'অক্সিজেন স্তর',
+        'home.vitals.share': 'কেয়ার টিমের সাথে শেয়ার করুন',
+        'home.medication.title': 'ওষুধ ট্র্যাকার',
+        'home.medication.doses': 'আজ নেওয়া ডোজ',
+        'home.medication.next': 'পরবর্তী ডোজ',
+        'home.activity.title': 'দৈনন্দিন কার্যকলাপ',
+        'home.activity.steps': 'পদক্ষেপ',
+        'home.activity.water': 'পানি (গ্লাস)',
+        'home.activity.sleep': 'ঘুম',
+        
+        // Alerts
+        'alerts.bp': 'সতর্কতা: রক্তচাপ কিছুটা বেশি। দয়া করে 30 মিনিট পর আবার চেক করুন।',
+        'alerts.doctor': 'মৃদু অনুস্মারক: আগামীকাল সকাল ১০টায় ডাক্তারের সাথে দেখা করতে যান।',
+        
+        // To-Do Page
+        'todo.title': 'আজকের আমার স্বাস্থ্য মাইলফলক',
+        'todo.remaining': 'মাইলফলক বাকি',
+        'todo.add.title': 'নতুন মাইলফলক যোগ করুন',
+        'todo.add.placeholder': 'কাজের শিরোনাম (যেমন, বিপি ওষুধ নিন)',
+        'todo.add.type': 'কাজের ধরন',
+        'todo.add.submit': 'মাইলফলক যোগ করুন',
+        'todo.preview.title': 'আগামীকালের প্রিভিউ',
+        'todo.status.complete': 'সম্পূর্ণ',
+        'todo.status.pending': 'বিচারাধীন',
+        'todo.status.upcoming': 'আসন্ন',
+        
+        // Progress Page
+        'progress.title': 'আপনার অগ্রগতি',
+        'progress.streak': 'বর্তমান স্ট্রিক',
+        'progress.streak.days': 'দিন',
+        'progress.level': 'আপনার বর্তমান স্বাস্থ্য স্তর:',
+        'progress.badges': 'অর্জিত ব্যাজ',
+        
+        // Settings Page
+        'settings.title': 'সেটিংস এবং রিপোর্ট',
+        'settings.profile.title': 'প্রোফাইল সেটিংস',
+        'settings.profile.name': 'পুরো নাম',
+        'settings.profile.dob': 'জন্ম তারিখ',
+        'settings.profile.conditions': 'স্বাস্থ্য অবস্থা',
+        'settings.profile.emergency': 'জরুরি যোগাযোগ',
+        'settings.connections.title': 'সংযোগ সেটিংস',
+        'settings.export.title': 'ABDM ডেটা এক্সপোর্ট',
+        'settings.export.description': 'স্বাস্থ্যসেবা প্রদানকারীদের সাথে শেয়ার করার জন্য ABDM-সামঞ্জস্যপূর্ণ ফর্ম্যাটে আপনার স্বাস্থ্য ডেটা রপ্তানি করুন।',
+        'settings.export.health': 'স্বাস্থ্য ডেটা সারাংশ',
+        'settings.export.meds': 'ওষুধের ইতিহাস',
+        'settings.risk.title': 'ঝুঁকি পূর্বাভাস',
+        'settings.risk.insight': 'ইনসাইট: কম ঝুঁকির অবস্থা বজায় রাখতে আপনার সম্মতি 80% এর উপরে রাখুন।',
+        'settings.share.title': 'প্রগতি শেয়ার করুন',
+        'settings.share.description': 'আপনার স্বাস্থ্য সারাংশ নিরাপদে শেয়ার করুন।',
+        'settings.share.family': 'পরিবারের কাছে পাঠান',
+        'settings.share.doctor': 'ডাক্তারের কাছে পাঠান',
+        
+        // Medical Terms
+        'medical.bpm': 'BPM',
+        'medical.mmhg': 'mmHg',
+        'medical.mgdl': 'mg/dL',
+        'medical.spo2': 'SpO₂ %'
+      },
+      te: {
+        // Navigation
+        'nav.home': 'హోమ్',
+        'nav.todo': 'చేయవలసినవి',
+        'nav.progress': 'ప్రోగ్రెస్',
+        'nav.settings': 'సెట్టింగ్స్',
+        
+        // Common
+        'common.greeting.morning': 'శుభోదయం!',
+        'common.greeting.afternoon': 'శుభ మద్యాహ్నం!',
+        'common.greeting.evening': 'శుభ సాయంత్రం!',
+        'common.compliance': 'కంప్లయన్స్ స్కోర్',
+        'common.today': 'ఈరోజు',
+        'common.tomorrow': 'రేపు',
+        'common.add': 'జోడించు',
+        'common.save': 'సేవ్ చేయి',
+        'common.cancel': 'రద్దు చేయి',
+        'common.edit': 'ఎడిట్ చేయి',
+        'common.delete': 'డిలీట్ చేయి',
+        'common.share': 'షేర్ చేయి',
+        
+        // Home Page
+        'home.title': 'హెల్త్ డాష్బోర్డ్',
+        'home.compliance.title': 'నేటి కంప్లయన్స్ స్కోర్',
+        'home.vitals.title': 'లైవ్ వైటల్స్',
+        'home.vitals.hr': 'హార్ట్ రేట్',
+        'home.vitals.bp': 'బ్లడ్ ప్రెషర్',
+        'home.vitals.bg': 'బ్లడ్ గ్లూకోజ్',
+        'home.vitals.spo2': 'ఆక్సిజన్ సెచురేషన్',
+        'home.vitals.share': 'కేయర్ టీమ్తో షేర్ చేయి',
+        'home.medication.title': 'మెడికేషన్ ట్రాకర్',
+        'home.medication.doses': 'ఈరోజు తీసుకున్న డోసెస్',
+        'home.medication.next': 'తర్వాతి డోస్',
+        'home.activity.title': 'డెయ్లీ యాక్టివిటీ',
+        'home.activity.steps': 'స్టెప్స్',
+        'home.activity.water': 'నీరు (గ్లాసెస్)',
+        'home.activity.sleep': 'నిద్ర',
+        
+        // Alerts
+        'alerts.bp': 'అలర్ట్: బీపీ రీడింగ్ కొద్దిగా ఎక్కువగా ఉంది. దయచేసి 30 నిమిషాలలో మళ్లీ తనిఖీ చేయండి.',
+        'alerts.doctor': 'సాఫ్ట్ రిమైండర్: రేపు ఉదయం 10 గంటలకు డాక్టర్ విజిట్.',
+        
+        // To-Do Page
+        'todo.title': 'నేటి నా ఆరోగ్య మైల్స్టోన్లు',
+        'todo.remaining': 'మైల్స్టోన్లు మిగిలి ఉన్నాయి',
+        'todo.add.title': 'కొత్త మైల్స్టోన్ జోడించండి',
+        'todo.add.placeholder': 'టాస్క్ టైటిల్ (ఉదా: బీపీ మందు తీసుకోండి)',
+        'todo.add.type': 'టాస్క్ రకం',
+        'todo.add.submit': 'మైల్స్టోన్ జోడించండి',
+        'todo.preview.title': 'రేపటి పూర్వావలోకనం',
+        'todo.status.complete': 'పూర్తయింది',
+        'todo.status.pending': 'పెండింగ్',
+        'todo.status.upcoming': 'రాబోయే',
+        
+        // Progress Page
+        'progress.title': 'మీ ప్రోగ్రెస్',
+        'progress.streak': 'ప్రస్తుత స్ట్రీక్',
+        'progress.streak.days': 'రోజులు',
+        'progress.level': 'మీ ప్రస్తుత ఆరోగ్య స్థాయి:',
+        'progress.badges': 'సంపాదించిన బ్యాడ్జీలు',
+        
+        // Settings Page
+        'settings.title': 'సెట్టింగ్స్ & రిపోర్ట్స్',
+        'settings.profile.title': 'ప్రొఫైల్ సెట్టింగ్స్',
+        'settings.profile.name': 'పూర్తి పేరు',
+        'settings.profile.dob': 'పుట్టిన తేదీ',
+        'settings.profile.conditions': 'ఆరోగ్య పరిస్థితులు',
+        'settings.profile.emergency': 'అత్యవసర సంప్రదింపు',
+        'settings.connections.title': 'కనెక్షన్ సెట్టింగ్స్',
+        'settings.export.title': 'ABDM డేటా ఎక్స్పోర్ట్',
+        'settings.export.description': 'హెల్త్కేర్ ప్రొవైడర్లతో షేర్ చేయడానికి ABDM-కంపాటిబుల్ ఫార్మాట్లో మీ హెల్త్ డేటాను ఎక్స్పోర్ట్ చేయండి.',
+        'settings.export.health': 'హెల్త్ డేటా సమ్మరీ',
+        'settings.export.meds': 'మెడికేషన్ హిస్టరీ',
+        'settings.risk.title': 'రిస్క్ ఫోర్కాస్టింగ్',
+        'settings.risk.insight': 'ఇన్సైట్: తక్కువ రిస్క్ స్టేటస్ను నిర్వహించడానికి మీ కంప్లయన్స్ను 80% పైన ఉంచండి.',
+        'settings.share.title': 'ప్రోగ్రెస్ షేర్ చేయండి',
+        'settings.share.description': 'మీ ఆరోగ్య సారాంశాన్ని సురక్షితంగా షేర్ చేయండి.',
+        'settings.share.family': 'ఫ్యామిలీకి పంపండి',
+        'settings.share.doctor': 'డాక్టర్కు పంపండి',
+        
+        // Medical Terms
+        'medical.bpm': 'BPM',
+        'medical.mmhg': 'mmHg',
+        'medical.mgdl': 'mg/dL',
+        'medical.spo2': 'SpO₂ %'
+      }
+      // Additional languages can be added similarly...
+    };
+
+    const languageClasses = {
+      'en': '',
+      'hi': 'hindi',
+      'bn': 'bengali',
+      'te': 'telugu',
+      'ta': 'tamil',
+      'gu': 'gujarati',
+      'mr': 'marathi',
+      'pa': 'punjabi',
+      'kn': 'kannada',
+      'ml': 'malayalam',
+      'or': 'odia'
+    };
+
+    let currentLanguage = localStorage.getItem('rpmLanguage') || 'en';
+
+    function setLanguage(lang) {
+      currentLanguage = lang;
+      localStorage.setItem('rpmLanguage', lang);
+      applyLanguage();
+      renderAllPages();
+    }
+
+    function applyLanguage() {
+      // Update HTML lang attribute
+      document.documentElement.lang = currentLanguage;
+      
+      // Apply language-specific font class
+      Object.values(languageClasses).forEach(cls => {
+        document.body.classList.remove(cls);
+      });
+      if (languageClasses[currentLanguage]) {
+        document.body.classList.add(languageClasses[currentLanguage]);
+      }
+      
+      // Update all elements with data-key attribute
+      document.querySelectorAll('[data-key]').forEach(element => {
+        const key = element.getAttribute('data-key');
+        if (translations[currentLanguage] && translations[currentLanguage][key]) {
+          element.textContent = translations[currentLanguage][key];
+          element.classList.add('lang-text');
         }
+      });
+      
+      // Update greeting
+      updateGreeting();
+    }
 
-        document.getElementById('alert-family-btn')?.addEventListener('click', () => {
-            triggerSmartAlert('family', `Patient health compliance is at ${calculateHealthScore()}%. Just checking in.`);
-        });
-        
-        document.getElementById('alert-doctor-btn')?.addEventListener('click', () => {
-            const message = `Secure daily report: Compliance score ${calculateHealthScore()}%. Vitals: HR ${appState.vitals.hr}, BP ${appState.vitals.bp}.`;
-            triggerSmartAlert('doctor', message);
-        });
+    function t(key) {
+      return translations[currentLanguage]?.[key] || translations['en'][key] || key;
+    }
 
-        // --- INITIALIZATION ---
-        const renderUI = () => {
-            renderHeader();
-            const score = calculateHealthScore();
-            renderHealthScore(score);
-            renderTasks();
-            renderMedLog();
-            renderVitalsForm();
-            renderProgress();
-            renderProfileForm();
-            renderChart();
-            window.createLucideIcons();
-        };
+    function updateGreeting() {
+      const h = new Date().getHours();
+      let greetingKey = 'common.greeting.morning';
+      if (h >= 12 && h < 18) greetingKey = 'common.greeting.afternoon';
+      if (h >= 18) greetingKey = 'common.greeting.evening';
+      
+      document.getElementById('greeting-text').textContent = t(greetingKey);
+    }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            loadState();
-            renderUI();
-            
-            // Re-select the correct active button in the nav on load
-            const activeNavButton = document.querySelector(`#bottom-nav button[onclick*="'${appState.currentPage}'"]`);
-            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-            if(activeNavButton) {
-                activeNavButton.classList.add('active');
+    const INITIAL_STATE = {
+      profile: { name: 'John Doe', dob: '1975-05-15', conditions: 'Hypertension, Type 2 Diabetes', emergencyContact: 'Jane Doe - (555) 123-4567' },
+      tasks: [
+        { id:1, name:'Take Blood Pressure', icon:'Activity', isChecked:false, timeMM: 8*60, timeLabel:'08:00 AM' },
+        { id:2, name:'Check Blood Glucose', icon:'Activity', isChecked:false, timeMM: 8*60+30, timeLabel:'08:30 AM' },
+        { id:3, name:'Take Morning Medication', icon:'Pill', isChecked:false, timeMM: 9*60, timeLabel:'09:00 AM' },
+        { id:4, name:'30 min Walk/Exercise', icon:'Footprints', isChecked:false, timeMM: 17*60, timeLabel:'05:00 PM' },
+        { id:5, name:'Take Evening Medication', icon:'Pill', isChecked:false, timeMM: 20*60, timeLabel:'08:00 PM' }
+      ],
+      vitals: { hr:72, bp:'130/80', bg:105, spo2:97 },
+      medicationHistory: [
+        { date: 'Mon', meds: ['Aspirin (AM)', 'Metformin (AM)'], nextDose: 'Aspirin at 8:00 PM', dosesTaken: 2, totalDoses: 3 },
+        { date: 'Sun', meds: ['Aspirin (AM)', 'Metformin (AM)', 'Aspirin (PM)'], nextDose: 'Aspirin (AM)', dosesTaken: 3, totalDoses: 3 },
+      ],
+      gamification: { streak:3, level:5, progressToNextLevel:65, badges: [
+        { id:1, name:'First Check-in', icon:'CheckCircle', earned:true, color:'bg-amber-400' },
+        { id:2, name:'Consistent Care', icon:'CalendarCheck', earned:false, color:'bg-gray-300' },
+        { id:3, name:'Low Risk Status', icon:'Shield', earned:false, color:'bg-gray-300' },
+        { id:4, name:'Active Achiever', icon:'Footprints', earned:true, color:'bg-emerald-400' },
+        { id:5, name:'Perfect Week', icon:'Star', earned:false, color:'bg-gray-300' },
+        { id:6, name:'Vitals Master', icon:'Activity', earned:false, color:'bg-gray-300' },
+        { id:7, name:'Medication Pro', icon:'Pill', earned:false, color:'bg-gray-300' },
+        { id:8, name:'Health Champion', icon:'Award', earned:false, color:'bg-gray-300' }
+      ] },
+      healthData: [ {day:'Mon',score:75,risk:25},{day:'Tue',score:80,risk:20},{day:'Wed',score:85,risk:15},{day:'Thu',score:90,risk:10},{day:'Fri',score:82,risk:18},{day:'Sat',score:95,risk:5},{day:'Sun',score:98,risk:2} ],
+      currentPage:'home', lastUpdatedDate:TODAY_DATE_KEY, taskIdCounter:6, isVitalsEditing:false
+    };
+
+    let appState = JSON.parse(localStorage.getItem('rpmCoachStateDistributed')||'null') || INITIAL_STATE;
+    const save = () => localStorage.setItem('rpmCoachStateDistributed', JSON.stringify(appState));
+    const refreshIconsSoon = () => { if (typeof lucide==='undefined') return; requestAnimationFrame(()=>lucide.createIcons({attrs:{'stroke-width':2,'class':'lucide'}})); };
+    const calculateHealthScore = () => { const c=appState.tasks.filter(t=>t.isChecked).length; const total=appState.tasks.length; return total?Math.round((c/total)*100):0; };
+
+    // ================
+    // Theme handling
+    // ================
+    const themeSelect = document.getElementById('theme-select');
+    const storedTheme = localStorage.getItem('rpmTheme') || 'neon';
+    document.body.setAttribute('data-theme', storedTheme);
+    themeSelect.value = storedTheme;
+    function applyTheme(theme){ document.body.setAttribute('data-theme', theme); localStorage.setItem('rpmTheme', theme); }
+    themeSelect.addEventListener('change', (e)=> applyTheme(e.target.value));
+
+    // ================
+    // Language handling
+    // ================
+    const languageSelect = document.getElementById('language-select');
+    languageSelect.value = currentLanguage;
+    languageSelect.addEventListener('change', (e)=> setLanguage(e.target.value));
+
+    // ===================
+    // Render: Header
+    // ===================
+    function renderHeader(){
+      document.getElementById('header-user-name').textContent = appState.profile.name;
+      const hv = [ {k:'hr',i:'heart',l:t('home.vitals.hr'),v:appState.vitals.hr}, {k:'bp',i:'thermometer-half',l:t('home.vitals.bp'),v:appState.vitals.bp.replace('/', ' / ')}, {k:'bg',i:'droplet',l:t('home.vitals.bg'),v:appState.vitals.bg}, {k:'spo2',i:'wind',l:t('home.vitals.spo2'),v:appState.vitals.spo2} ];
+      const header = document.getElementById('header-vitals-display');
+      header.innerHTML = hv.map(v=>`<div class='flex items-center gap-1'><i data-lucide='${v.i}' class='w-4 h-4' style="color: var(--muted-2)"></i><span style="color: var(--muted-2)">${v.l}:</span><span class='font-bold' style="color: var(--fg)">${v.v}</span></div>`).join('');
+    }
+
+    // ===================
+    // Vitals Management
+    // ===================
+    function updateVital(key, value) {
+      appState.vitals[key] = value;
+      save();
+      renderHeader();
+      // Show confirmation
+      const status = document.getElementById('vitals-status');
+      if (status) {
+        status.textContent = t('common.save') + '!';
+        status.style.color = 'var(--ok)';
+        setTimeout(() => { status.textContent = ''; }, 2000);
+      }
+    }
+
+    function validateVital(key, value) {
+      switch(key) {
+        case 'hr':
+          const hr = parseInt(value);
+          return hr >= 40 && hr <= 200 ? hr : appState.vitals.hr;
+        case 'bg':
+          const bg = parseInt(value);
+          return bg >= 50 && bg <= 400 ? bg : appState.vitals.bg;
+        case 'spo2':
+          const spo2 = parseInt(value);
+          return spo2 >= 70 && spo2 <= 100 ? spo2 : appState.vitals.spo2;
+        case 'bp':
+          if (value.includes('/')) {
+            const [systolic, diastolic] = value.split('/').map(v => parseInt(v.trim()));
+            if (systolic >= 60 && systolic <= 200 && diastolic >= 40 && diastolic <= 130) {
+              return value;
             }
-            
-            changePage(appState.currentPage, activeNavButton);
-        });
-    </script>
+          }
+          return appState.vitals.bp;
+        default:
+          return value;
+      }
+    }
+
+    // ===================
+    // Render: Home page
+    // ===================
+    function renderHome(){
+      const score = calculateHealthScore();
+      const dosesTaken = appState.tasks.filter(t => t.icon === 'Pill' && t.isChecked).length;
+      const totalDoses = appState.tasks.filter(t => t.icon === 'Pill').length;
+      const nextPillTask = appState.tasks.find(t => t.icon === 'Pill' && !t.isChecked);
+      const nextDoseText = nextPillTask ? `${nextPillTask.name} at ${nextPillTask.timeLabel||toTimeLabel(nextPillTask.timeMM)}` : t('home.medication.next');
+
+      const home = document.getElementById('home-content');
+      home.innerHTML = `
+        <div id="compliance-banner" class="card p-5 mb-6 cyber-border">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <span class="inline-flex items-center justify-center w-10 h-10 rounded-xl" style="background: radial-gradient(circle at 30% 30%, color-mix(in oklab, var(--accent-1) 35%, transparent), color-mix(in oklab, var(--accent-2) 25%, transparent));">
+                <i data-lucide="gauge-circle" class="w-6 h-6 text-white"></i>
+              </span>
+              <div>
+                <p class="text-xs font-semibold" style="color: var(--muted-2)">${t('home.compliance.title')}</p>
+                <p class="text-4xl font-extrabold tracking-tight drop-shadow" style="color: var(--fg)" id="compliance-score-display">${score}%</p>
+              </div>
+            </div>
+            <button class="glass-pill p-2" aria-label="Close banner" onclick="this.closest('#compliance-banner').remove()"><i data-lucide="x" class="w-5 h-5" style="color: var(--muted-2)"></i></button>
+          </div>
+          <div class="progress-rail mt-4"><div id="score-progress" class="progress-fill" style="width: ${Math.min(100,score)}%"></div></div>
+        </div>
+
+        <!-- Live Vitals Card -->
+        <div class="card p-6 mb-6 cyber-border">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-xl font-bold flex items-center gap-2">
+              <i data-lucide="activity" class="w-6 h-6" style="color: var(--accent-2)"></i>
+              <span class="lang-text" data-key="home.vitals.title">${t('home.vitals.title')}</span>
+            </h3>
+            <div class="text-xs font-semibold" id="vitals-status" style="color: var(--ok)"></div>
+          </div>
+          
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <!-- Heart Rate -->
+            <div class="text-center p-4 rounded-xl cyber-border" style="background: color-mix(in oklab, var(--danger) 8%, transparent); border-color: color-mix(in oklab, var(--danger) 30%, transparent)">
+              <i data-lucide="heart" class="w-8 h-8 mx-auto mb-2" style="color: var(--danger)"></i>
+              <p class="text-sm font-semibold mb-1" style="color: var(--muted)">${t('home.vitals.hr')}</p>
+              <input type="number" 
+                     class="vital-input" 
+                     value="${appState.vitals.hr}" 
+                     onchange="updateVital('hr', validateVital('hr', this.value))"
+                     onblur="this.value = validateVital('hr', this.value)"
+                     min="40" max="200"
+                     aria-label="${t('home.vitals.hr')}">
+              <p class="text-xs mt-1" style="color: var(--muted-2)">${t('medical.bpm')}</p>
+            </div>
+
+            <!-- Blood Pressure -->
+            <div class="text-center p-4 rounded-xl cyber-border" style="background: color-mix(in oklab, var(--warn) 8%, transparent); border-color: color-mix(in oklab, var(--warn) 30%, transparent)">
+              <i data-lucide="thermometer" class="w-8 h-8 mx-auto mb-2" style="color: var(--warn)"></i>
+              <p class="text-sm font-semibold mb-1" style="color: var(--muted)">${t('home.vitals.bp')}</p>
+              <input type="text" 
+                     class="vital-input" 
+                     value="${appState.vitals.bp}" 
+                     onchange="updateVital('bp', validateVital('bp', this.value))"
+                     onblur="this.value = validateVital('bp', this.value)"
+                     placeholder="120/80"
+                     pattern="\\d{2,3}/\\d{2,3}"
+                     aria-label="${t('home.vitals.bp')}">
+              <p class="text-xs mt-1" style="color: var(--muted-2)">${t('medical.mmhg')}</p>
+            </div>
+
+            <!-- Blood Glucose -->
+            <div class="text-center p-4 rounded-xl cyber-border" style="background: color-mix(in oklab, var(--accent-1) 8%, transparent); border-color: color-mix(in oklab, var(--accent-1) 30%, transparent)">
+              <i data-lucide="droplet" class="w-8 h-8 mx-auto mb-2" style="color: var(--accent-1)"></i>
+              <p class="text-sm font-semibold mb-1" style="color: var(--muted)">${t('home.vitals.bg')}</p>
+              <input type="number" 
+                     class="vital-input" 
+                     value="${appState.vitals.bg}" 
+                     onchange="updateVital('bg', validateVital('bg', this.value))"
+                     onblur="this.value = validateVital('bg', this.value)"
+                     min="50" max="400"
+                     aria-label="${t('home.vitals.bg')}">
+              <p class="text-xs mt-1" style="color: var(--muted-2)">${t('medical.mgdl')}</p>
+            </div>
+
+            <!-- Oxygen Saturation -->
+            <div class="text-center p-4 rounded-xl cyber-border" style="background: color-mix(in oklab, var(--ok) 8%, transparent); border-color: color-mix(in oklab, var(--ok) 30%, transparent)">
+              <i data-lucide="wind" class="w-8 h-8 mx-auto mb-2" style="color: var(--ok)"></i>
+              <p class="text-sm font-semibold mb-1" style="color: var(--muted)">${t('home.vitals.spo2')}</p>
+              <input type="number" 
+                     class="vital-input" 
+                     value="${appState.vitals.spo2}" 
+                     onchange="updateVital('spo2', validateVital('spo2', this.value))"
+                     onblur="this.value = validateVital('spo2', this.value)"
+                     min="70" max="100"
+                     aria-label="${t('home.vitals.spo2')}">
+              <p class="text-xs mt-1" style="color: var(--muted-2)">${t('medical.spo2')}</p>
+            </div>
+          </div>
+
+          <div class="mt-4 text-center">
+            <button onclick="triggerSmartAlert('doctor', 'Vitals update: HR ' + appState.vitals.hr + ', BP ' + appState.vitals.bp + ', BG ' + appState.vitals.bg + ', SpO2 ' + appState.vitals.spo2 + '%.')" 
+                    class="glass-pill px-4 py-2 text-sm font-semibold flex items-center gap-2 mx-auto hover:scale-105 transition-transform">
+              <i data-lucide="send" class="w-4 h-4"></i>
+              <span class="lang-text" data-key="home.vitals.share">${t('home.vitals.share')}</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="flex justify-around items-center mb-6 card p-4 cyber-border">
+          <button onclick="handleAlertHoldStart(event); setTimeout(() => handleAlertHoldEnd(event), 3000);" class="flex flex-col items-center nav-item hover:scale-110 active:scale-95 transition" type="button">
+            <span class="w-12 h-12 rounded-2xl grid place-items-center sos-glow cyber-border" style="background-image: radial-gradient(120px 120px at 50% 40%, color-mix(in oklab, var(--danger) 55%, transparent), color-mix(in oklab, var(--danger) 20%, transparent));"><i data-lucide="siren" class="w-6 h-6 text-white"></i></span>
+            <span class="text-[11px] font-bold" style="color: #000000">SOS</span>
+          </button>
+          <button onclick="triggerSmartAlert('doctor', 'Secure daily report: Compliance score '+calculateHealthScore()+'%.');" class="flex flex-col items-center nav-item hover:scale-110 active:scale-95 transition" type="button">
+            <span class="w-12 h-12 rounded-2xl grid place-items-center cyber-border" style="background: color-mix(in oklab, var(--accent-2) 15%, transparent); border: 1px solid color-mix(in oklab, var(--accent-2) 40%, transparent)"><i data-lucide="phone-call" class="w-6 h-6" style="color: var(--accent-2)"></i></span>
+            <span class="text-[11px] font-bold" style="color: #000000">Call Doctor</span>
+          </button>
+          <button onclick="changePage('settings', document.querySelector('#bottom-nav button:last-child'))" class="flex flex-col items-center nav-item hover:scale-110 active:scale-95 transition" type="button">
+            <span class="w-12 h-12 rounded-2xl grid place-items-center cyber-border" style="background: color-mix(in oklab, var(--accent-1) 15%, transparent); border: 1px solid color-mix(in oklab, var(--accent-1) 40%, transparent)"><i data-lucide="file-text" class="w-6 h-6" style="color: var(--accent-1)"></i></span>
+            <span class="text-[11px] font-bold" style="color: #000000">Reports</span>
+          </button>
+          <button onclick="changePage('todo', document.querySelector('#bottom-nav button:nth-child(2)'))" class="flex flex-col items-center nav-item hover:scale-110 active:scale-95 transition" type="button">
+            <span class="w-12 h-12 rounded-2xl grid place-items-center cyber-border" style="background: color-mix(in oklab, var(--ok) 12%, transparent); border: 1px solid color-mix(in oklab, var(--ok) 40%, transparent)"><i data-lucide="list-checks" class="w-6 h-6" style="color: var(--ok)"></i></span>
+            <span class="text-[11px] font-bold" style="color: #000000">To‑Do List</span>
+          </button>
+        </div>
+
+        <div class="card p-6 mb-6 cyber-border">
+          <h3 class="text-xl font-bold mb-3 flex items-center gap-2"><i data-lucide="pill" class="w-6 h-6" style="color: #000000"></i><span class="lang-text" data-key="home.medication.title">${t('home.medication.title')}</span></h3>
+          <div class="flex items-center justify-between">
+            <div class="relative w-24 h-24">
+              <svg class="w-full h-full" viewBox="0 0 100 100" aria-hidden="true">
+                <circle style="color: var(--muted-2)" stroke-width="10" stroke="currentColor" fill="transparent" r="40" cx="50" cy="50"/>
+                <circle id="med-progress-ring" style="color: var(--accent-2)" class="transition-all duration-1000 ease-out" stroke-width="10" stroke-dasharray="251.2" stroke-dashoffset="${(1 - (totalDoses?dosesTaken/totalDoses:0)) * 251.2}" stroke-linecap="round" stroke="currentColor" fill="transparent" r="40" cx="50" cy="50" transform="rotate(-90 50 50)"/>
+                <text id="med-progress-text" x="50" y="55" font-size="20" text-anchor="middle" class="font-black" style="fill: var(--fg)">${totalDoses? Math.round(dosesTaken/totalDoses*100):0}%</text>
+              </svg>
+            </div>
+            <div class="text-right">
+              <p class="text-3xl font-extrabold drop-shadow" id="doses-taken-display" style="color: var(--ok)">${dosesTaken}/${totalDoses}</p>
+              <p class="text-xs" style="color: var(--muted-2)">${t('home.medication.doses')}</p>
+            </div>
+          </div>
+          <div class="mt-4 glass-pill px-4 py-2">
+            <p class="font-semibold text-sm flex items-center gap-2"><i data-lucide="clock" class="w-4 h-4" style="color: var(--warn)"></i> <span style="color: var(--muted)">${t('home.medication.next')}:</span> <span id="next-med-display-home" class="ml-1 font-bold" style="color: var(--fg)">${nextDoseText}</span></p>
+          </div>
+        </div>
+
+        <div class="card p-6 mb-6 cyber-border">
+          <h3 class="text-xl font-bold mb-4 flex items-center gap-2"><i data-lucide="footprints" class="w-6 h-6"style="color: #000000"></i><span class="lang-text" data-key="home.activity.title">${t('home.activity.title')}</span></h3>
+          <div class="grid grid-cols-3 gap-4 text-center">
+            <div class="flex flex-col items-center">
+              <div class="p-3 rounded-2xl border mb-2 animate-float cyber-border" style="background: color-mix(in oklab, var(--accent-2) 15%, transparent); border-color: color-mix(in oklab, var(--accent-2) 35%, transparent)"><i data-lucide="shoe" class="w-6 h-6" style="color: var(--accent-2)"></i></div>
+              <p class="text-lg font-bold" style="color: var(--fg)">4,356</p>
+              <p class="text-xs" style="color: var(--muted-2)">${t('home.activity.steps')}</p>
+            </div>
+            <div class="flex flex-col items-center">
+              <div class="p-3 rounded-2xl border mb-2 animate-float cyber-border" style="animation-delay:.2s; background: color-mix(in oklab, var(--ok) 15%, transparent); border-color: color-mix(in oklab, var(--ok) 35%, transparent)"><i data-lucide="droplets" class="w-6 h-6" style="color: var(--ok)"></i></div>
+              <p class="text-lg font-bold" style="color: var(--fg)">6/8</p>
+              <p class="text-xs" style="color: var(--muted-2)">${t('home.activity.water')}</p>
+            </div>
+            <div class="flex flex-col items-center">
+              <div class="p-3 rounded-2xl border mb-2 animate-float cyber-border" style="animation-delay:.4s; background: color-mix(in oklab, var(--accent-1) 15%, transparent); border-color: color-mix(in oklab, var(--accent-1) 35%, transparent)"><i data-lucide="moon" class="w-6 h-6" style="color: var(--accent-1)"></i></div>
+              <p class="text-lg font-bold" style="color: var(--fg)">7.2 hrs</p>
+              <p class="text-xs" style="color: var(--muted-2)">${t('home.activity.sleep')}</p>
+            </div>
+          </div>
+        </div>
+
+        <div id="alerts-container" class="space-y-3 mb-8">
+          <div class="card p-4 flex items-center gap-3 cyber-border" style="background: color-mix(in oklab, var(--danger) 8%, transparent); border-color: color-mix(in oklab, var(--danger) 40%, transparent)">
+            <i data-lucide="bell" class="w-6 h-6" style="color: var(--danger)"></i>
+            <p class="font-semibold" style="color: var(--fg)">${t('alerts.bp')}</p>
+          </div>
+          <div class="card p-4 flex items-center gap-3 cyber-border" style="background: color-mix(in oklab, var(--warn) 8%, transparent); border-color: color-mix(in oklab, var(--warn) 40%, transparent)">
+            <i data-lucide="calendar-check" class="w-6 h-6" style="color: var(--warn)"></i>
+            <p class="font-semibold" style="color: var(--fg)">${t('alerts.doctor')}</p>
+          </div>
+        </div>
+      `;
+      refreshIconsSoon();
+    }
+
+    // ===================
+    // Render: To‑Do page
+    // ===================
+    function renderTodo(){
+      const remaining = appState.tasks.filter(t=>!t.isChecked).length;
+      const todo = document.getElementById('todo-content');
+      todo.innerHTML = `
+        <h2 class="text-3xl font-black mb-5 flex items-center justify-between tracking-tight" style="color: var(--fg)">
+          <span class="flex items-center gap-2"><i data-lucide=\"heart\" class=\"w-8 h-8\" style=\"color: var(--danger)\"></i><span class="neon-title lang-text" data-key="todo.title">${t('todo.title')}</span></span>
+          <span id="tasks-remaining-display" class="text-lg font-semibold" style="color: var(--muted)">${remaining} ${t('todo.remaining')}</span>
+        </h2>
+
+        <div class="card p-4 mb-6 cyber-border">
+          <h3 class="text-xl font-bold mb-3" style="color: var(--fg)">➕ <span class="lang-text" data-key="todo.add.title">${t('todo.add.title')}</span></h3>
+          <form id="add-task-form" class="space-y-3" novalidate>
+            <input type="text" id="new-task-title" placeholder="${t('todo.add.placeholder')}" class="w-full p-3 tile border focus:outline-none focus:ring-2 focus:ring-opacity-30" style="focus-ring-color: var(--accent-1)" required maxlength="120">
+            <div class="grid grid-cols-2 gap-3">
+              <input type="time" id="new-task-time" class="w-full p-3 tile border focus:outline-none focus:ring-2 focus:ring-opacity-30" style="focus-ring-color: var(--accent-1)" required>
+              <select id="new-task-type" class="w-full p-3 tile border bg-transparent focus:outline-none focus:ring-2 focus:ring-opacity-30" style="focus-ring-color: var(--accent-1)" required>
+                <option value="Pill">Medication</option>
+                <option value="Footprints">Exercise</option>
+                <option value="Droplets">Hydration</option>
+                <option value="Activity">Vitals Check</option>
+                <option value="NotebookPen">Other</option>
+              </select>
+            </div>
+            <button type="submit" class="btn-gradient w-full py-3 lang-text" data-key="todo.add.submit">${t('todo.add.submit')}</button>
+          </form>
+        </div>
+
+        <div id="task-list" class="space-y-4 mb-8" aria-live="polite"></div>
+
+        <div class="card p-4 mt-6 mb-8 cyber-border">
+          <h3 class="text-xl font-bold mb-3" style="color: var(--fg)">📅 <span class="lang-text" data-key="todo.preview.title">${t('todo.preview.title')}</span></h3>
+          <div id="tomorrow-preview" class="flex overflow-x-auto gap-4">
+            <div class="p-3 tile border min-w-40 text-center cyber-border">
+              <i data-lucide="clock" class="w-5 h-5 mx-auto" style="color: var(--muted-2)"></i>
+              <p class="text-sm font-semibold mt-1" style="color: var(--fg)">8:00 AM</p>
+              <p class="text-xs" style="color: var(--muted-2)">Morning BP Check</p>
+            </div>
+            <div class="p-3 tile border min-w-40 text-center cyber-border">
+              <i data-lucide="user-check" class="w-5 h-5 mx-auto" style="color: var(--accent-2)"></i>
+              <p class="text-sm font-semibold mt-1" style="color: var(--fg)">10:00 AM</p>
+              <p class="text-xs" style="color: var(--muted-2)">Doctor Visit Reminder</p>
+            </div>
+            <div class="p-3 tile border min-w-40 text-center cyber-border">
+              <i data-lucide="pill" class="w-5 h-5 mx-auto" style="color: var(--ok)"></i>
+              <p class="text-sm font-semibold mt-1" style="color: var(--fg)">1:00 PM</p>
+              <p class="text-xs" style="color: var(--muted-2)">Vitamin Dose Schedule</p>
+            </div>
+          </div>
+        </div>
+      `;
+
+      // Render tasks list
+      const list = todo.querySelector('#task-list');
+      const frag = document.createDocumentFragment();
+      const tasks = [...appState.tasks].sort((a,b)=> a.timeMM-b.timeMM || (a.isChecked - b.isChecked));
+      const nowMM = nowMinutes();
+      tasks.forEach(task=>{
+        const isDone = task.isChecked; 
+        let statusText = t('todo.status.upcoming');
+        if (isDone) statusText = t('todo.status.complete');
+        else if (task.timeMM < nowMM) statusText = t('todo.status.pending');
+        
+        const row = document.createElement('div'); 
+        row.className = `w-full p-3 rounded-xl flex items-center justify-between text-lg font-semibold transition shadow-lg cyber-border ${isDone? '' : 'tile'}`; 
+        row.style.borderColor = 'var(--card-border)';
+        
+        const left = document.createElement('button'); 
+        left.type='button'; 
+        left.className='flex items-center gap-3 flex-grow text-left'; 
+        left.onclick=()=>toggleTask(task.id);
+        
+        const iconWrap = document.createElement('span'); 
+        iconWrap.className='w-7 h-7 rounded-lg grid place-items-center'; 
+        iconWrap.style.background = isDone? 'color-mix(in oklab, var(--ok) 20%, transparent)': 'rgba(255,255,255,0.8)'; 
+        iconWrap.style.border = `1px solid ${isDone? 'color-mix(in oklab, var(--ok) 40%, transparent)' : 'var(--card-border)'}`;
+        
+        const star = document.createElement('i'); 
+        star.setAttribute('data-lucide','star'); 
+        star.className='w-4 h-4'; 
+        star.style.color = isDone? 'var(--ok)' : 'var(--muted-2)'; 
+        iconWrap.appendChild(star);
+        
+        const info = document.createElement('div'); 
+        info.className='flex flex-col';
+        
+        const title = document.createElement('span'); 
+        title.textContent = task.name; 
+        title.style.color = isDone? 'color-mix(in oklab, var(--ok) 85%, var(--fg) 10%)' : 'var(--fg)'; 
+        if(isDone) title.style.textDecoration='line-through';
+        
+        const sub = document.createElement('span'); 
+        sub.textContent = task.timeLabel || toTimeLabel(task.timeMM); 
+        sub.style.color='var(--muted-2)'; 
+        sub.className='text-xs';
+        
+        info.appendChild(title); 
+        info.appendChild(sub);
+        left.appendChild(iconWrap); 
+        left.appendChild(info);
+        
+        const right = document.createElement('div'); 
+        right.className='flex items-center gap-3';
+        
+        const statusIcon = document.createElement('i'); 
+        statusIcon.setAttribute('data-lucide', isDone? 'check-circle' : 'circle-x'); 
+        statusIcon.className = 'w-5 h-5'; 
+        statusIcon.style.color = isDone? 'var(--ok)' : (statusText===t('todo.status.pending')? 'var(--danger)' : 'var(--muted-2)');
+        
+        const statusLbl = document.createElement('span'); 
+        statusLbl.textContent = statusText; 
+        statusLbl.className = 'text-xs'; 
+        statusLbl.style.color = isDone? 'var(--ok)' : (statusText===t('todo.status.pending')? 'var(--danger)' : 'var(--muted-2)');
+        
+        right.appendChild(statusIcon); 
+        right.appendChild(statusLbl);
+        row.appendChild(left); 
+        row.appendChild(right); 
+        frag.appendChild(row);
+      });
+      list.innerHTML=''; 
+      list.appendChild(frag);
+
+      // Add-task form handler
+      todo.querySelector('#add-task-form').onsubmit = (e)=>{
+        e.preventDefault();
+        const title = todo.querySelector('#new-task-title').value.trim();
+        const timeValue = todo.querySelector('#new-task-time').value;
+        const type = todo.querySelector('#new-task-type').value;
+        if(!title || !timeValue) return;
+        const [hh, mm] = timeValue.split(':').map(Number);
+        const newTask = { id: ++appState.taskIdCounter, name: title, icon: type, isChecked:false, timeMM: hh*60+mm, timeLabel: new Date(2000,0,1,hh,mm).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) };
+        appState.tasks.push(newTask); save(); renderTodo(); renderHome();
+      };
+
+      refreshIconsSoon();
+    }
+
+    // ===================
+    // Render: Progress page
+    // ===================
+    function renderProgress(){
+      const game = appState.gamification;
+      const progress = document.getElementById('progress-content');
+      progress.innerHTML = `
+        <h2 class="text-3xl font-black mb-5 text-center" style="color: var(--fg)"><i data-lucide="trophy" class="w-8 h-8" style="color: var(--warn)"></i> <span class="neon-title lang-text" data-key="progress.title">${t('progress.title')}</span></h2>
+        <div class="card p-6 mb-6 cyber-border">
+          <div class="flex items-center justify-center gap-4">
+            <i data-lucide="flame" class="w-10 h-10" style="color: var(--warn)"></i>
+            <div>
+              <p class="text-lg" style="color: var(--muted-2)">${t('progress.streak')}</p>
+              <p class="text-4xl font-extrabold drop-shadow" style="color: var(--fg)"><span id="streak-display">${game.streak}</span> ${t('progress.streak.days')}</p>
+            </div>
+          </div>
+        </div>
+        <div class="card p-6 mb-8 text-center cyber-border">
+          <p class="text-lg font-semibold" style="color: var(--muted-2)">${t('progress.level')}</p>
+          <div class="text-6xl font-extrabold my-3 relative inline-block">
+            <span class="neon-title">Level <span id="level-display">${game.level}</span></span>
+            <i data-lucide="zap" class="w-8 h-8 absolute -top-1 -right-8 animate-float" style="color: var(--accent-3)"></i>
+          </div>
+          <div class="progress-rail"><div id="progress-bar" class="progress-fill" style="width: ${game.progressToNextLevel}%"></div></div>
+        </div>
+        <div class="card p-6 mb-8 cyber-border">
+          <h3 class="text-2xl font-bold mb-4 flex items-center gap-2" style="color: var(--fg)"><i data-lucide="award" class="w-6 h-6" style="color: var(--accent-3)"></i><span class="neon-title lang-text" data-key="progress.badges">${t('progress.badges')}</span></h3>
+          <div id="badges-container" class="grid grid-cols-3 sm:grid-cols-5 gap-4"></div>
+        </div>
+      `;
+
+      // Render badges
+      const grid = progress.querySelector('#badges-container');
+      grid.innerHTML = appState.gamification.badges.map(b=>{
+        const earned = b.earned; const tone = earned ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.7)';
+        return `<div class="p-4 flex flex-col items-center rounded-xl cyber-border" style="background:${tone}; border:1px solid var(--card-border)">
+          <i data-lucide="${b.icon}" class="w-8 h-8" style="color:${earned? 'var(--ok)': 'var(--muted-2)'}"></i>
+          <span class="text-xs font-semibold mt-1 text-center" style="color:${earned? 'var(--fg)': 'var(--muted-2)'}">${b.name}</span>
+        </div>`;
+      }).join('');
+
+      refreshIconsSoon();
+    }
+
+    // ===================
+    // Render: Settings page
+    // ===================
+    function renderSettings(){
+      const s = document.getElementById('settings-content');
+      s.innerHTML = `
+        <h2 class="text-3xl font-black mb-5" style="color: var(--fg)"><i data-lucide="settings" class="w-8 h-8" style="color: var(--accent-1)"></i> <span class="neon-title lang-text" data-key="settings.title">${t('settings.title')}</span></h2>
+        <div class="space-y-6">
+          <div class="card p-6 cyber-border">
+            <h3 class="text-2xl font-bold mb-3 flex items-center gap-2" style="color: var(--fg)"><i data-lucide="user" class="w-6 h-6" style="color: var(--accent-2)"></i><span class="lang-text" data-key="settings.profile.title">${t('settings.profile.title')}</span></h3>
+            <form id="profile-form" class="space-y-4" novalidate>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label class="block font-medium mb-2 lang-text" data-key="settings.profile.name" style="color: var(--muted)">${t('settings.profile.name')}</label>
+                  <input type="text" id="profile-name" class="w-full p-3 tile border focus:outline-none focus:ring-2 focus:ring-opacity-30" style="focus-ring-color: var(--accent-1)" required>
+                </div>
+                <div>
+                  <label class="block font-medium mb-2 lang-text" data-key="settings.profile.dob" style="color: var(--muted)">${t('settings.profile.dob')}</label>
+                  <input type="date" id="profile-dob" class="w-full p-3 tile border focus:outline-none focus:ring-2 focus:ring-opacity-30" style="focus-ring-color: var(--accent-1)" required>
+                </div>
+              </div>
+              <div>
+                <label class="block font-medium mb-2 lang-text" data-key="settings.profile.conditions" style="color: var(--muted)">${t('settings.profile.conditions')}</label>
+                <textarea id="profile-conditions" rows="3" class="w-full p-3 tile border focus:outline-none focus:ring-2 focus:ring-opacity-30" style="focus-ring-color: var(--accent-1)" placeholder="${t('settings.profile.conditions')}"></textarea>
+              </div>
+              <div>
+                <label class="block font-medium mb-2 lang-text" data-key="settings.profile.emergency" style="color: var(--muted)">${t('settings.profile.emergency')}</label>
+                <input type="text" id="profile-emergency-contact" class="w-full p-3 tile border focus:outline-none focus:ring-2 focus:ring-opacity-30" style="focus-ring-color: var(--accent-1)" placeholder="${t('settings.profile.emergency')}">
+              </div>
+              <button type="submit" class="btn-gradient w-full py-3 lang-text" data-key="common.save">${t('common.save')}</button>
+            </form>
+          </div>
+
+          <div class="card p-6 cyber-border">
+            <h3 class="text-2xl font-bold mb-3 flex items-center gap-2" style="color: var(--fg)"><i data-lucide="users" class="w-6 h-6" style="color: var(--ok)"></i><span class="lang-text" data-key="settings.connections.title">${t('settings.connections.title')}</span></h3>
+            <div class="space-y-4">
+              <div class="flex items-center justify-between p-3 tile border cyber-border">
+                <div class="flex items-center gap-3">
+                  <i data-lucide="user-check" class="w-6 h-6" style="color: var(--ok)"></i>
+                  <div>
+                    <p class="font-semibold" style="color: var(--fg)">Dr. Sarah Johnson</p>
+                    <p class="text-xs" style="color: var(--muted-2)">Primary Care Physician</p>
+                  </div>
+                </div>
+                <button class="btn-gradient px-4 py-2 lang-text" data-key="common.edit" type="button">${t('common.edit')}</button>
+              </div>
+              <div class="flex items-center justify-between p-3 tile border cyber-border">
+                <div class="flex items-center gap-3">
+                  <i data-lucide="users-2" class="w-6 h-6" style="color: var(--warn)"></i>
+                  <div>
+                    <p class="font-semibold" style="color: var(--fg)">Family Members</p>
+                    <p class="text-xs" style="color: var(--muted-2)">3 connected family members</p>
+                  </div>
+                </div>
+                <button class="btn-gradient px-4 py-2 lang-text" data-key="common.edit" type="button">${t('common.edit')}</button>
+              </div>
+              <div class="flex items-center justify-between p-3 tile border cyber-border">
+                <div class="flex items-center gap-3">
+                  <i data-lucide="activity" class="w-6 h-6" style="color: var(--accent-3)"></i>
+                  <div>
+                    <p class="font-semibold" style="color: var(--fg)">Health Devices</p>
+                    <p class="text-xs" style="color: var(--muted-2)">2 connected devices</p>
+                  </div>
+                </div>
+                <button class="btn-gradient px-4 py-2 lang-text" data-key="common.edit" type="button">${t('common.edit')}</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="card p-6 cyber-border">
+            <h3 class="text-2xl font-bold mb-3 flex items-center gap-2" style="color: var(--fg)"><i data-lucide="database" class="w-6 h-6" style="color: var(--accent-2)"></i><span class="lang-text" data-key="settings.export.title">${t('settings.export.title')}</span></h3>
+            <p class="text-sm mb-4" style="color: var(--muted-2)">${t('settings.export.description')}</p>
+            <div class="space-y-4">
+              <div class="flex items-center justify-between p-4 tile border cyber-border">
+                <div>
+                  <p class="font-semibold lang-text" data-key="settings.export.health" style="color: var(--fg)">${t('settings.export.health')}</p>
+                  <p class="text-xs" style="color: var(--muted-2)">Vitals, medications, and compliance data</p>
+                </div>
+                <button id="export-abdm-btn" class="btn-gradient px-4 py-2 flex items-center gap-2" type="button"><i data-lucide="download" class="w-4 h-4"></i><span class="lang-text" data-key="common.export">Export CSV</span></button>
+              </div>
+              <div class="flex items-center justify-between p-4 tile border cyber-border">
+                <div>
+                  <p class="font-semibold lang-text" data-key="settings.export.meds" style="color: var(--fg)">${t('settings.export.meds')}</p>
+                  <p class="text-xs" style="color: var(--muted-2)">Complete medication adherence records</p>
+                </div>
+                <button id="export-meds-btn" class="btn-gradient px-4 py-2 flex items-center gap-2" type="button"><i data-lucide="download" class="w-4 h-4"></i><span class="lang-text" data-key="common.export">Export CSV</span></button>
+              </div>
+            </div>
+            <div id="export-status" class="mt-4 text-center font-semibold text-lg" style="color: var(--fg)"></div>
+          </div>
+
+          <div class="card p-6 cyber-border">
+            <h3 class="text-2xl font-bold mb-3 flex items-center gap-2" style="color: var(--fg)"><i data-lucide="activity" class="w-6 h-6" style="color: var(--accent-2)"></i><span class="lang-text" data-key="settings.risk.title">${t('settings.risk.title')}</span></h3>
+            <p class="text-sm mb-4" style="color: var(--muted-2)">Risk trend based on recent data:</p>
+            <div id="chart-container" class="flex justify-around items-end h-48 border-b pt-2" style="border-color: color-mix(in oklab, var(--accent-1) 20%, transparent)"></div>
+            <div id="chart-labels" class="flex justify-around text-sm font-medium mt-2" style="color: var(--muted-2)"></div>
+            <p id="predictive-insight" class="mt-4 glass-pill px-4 py-2"><span class="font-bold" style="color: var(--fg)">${t('common.insight')}:</span> <span style="color: var(--muted)">${t('settings.risk.insight')}</span></p>
+          </div>
+
+          <div class="card p-6 mb-8 cyber-border">
+            <h3 class="text-2xl font-bold mb-3 flex items-center gap-2" style="color: var(--fg)"><i data-lucide="send" class="w-6 h-6" style="color: var(--ok)"></i><span class="lang-text" data-key="settings.share.title">${t('settings.share.title')}</span></h3>
+            <p class="text-lg mb-4" style="color: var(--muted-2)">${t('settings.share.description')}</p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <button id="alert-family-btn" class="btn-gradient py-3 flex items-center justify-center gap-2" type="button"><i data-lucide="users" class="w-6 h-6"></i><span class="lang-text" data-key="settings.share.family">${t('settings.share.family')}</span></button>
+              <button id="alert-doctor-btn" class="btn-gradient py-3 flex items-center justify-center gap-2" type="button"><i data-lucide="user-check" class="w-6 h-6"></i><span class="lang-text" data-key="settings.share.doctor">${t('settings.share.doctor')}</span></button>
+            </div>
+            <p id="alert-status" class="mt-4 text-center font-semibold text-xl" style="color: var(--fg)"></p>
+          </div>
+        </div>
+      `;
+
+      // Populate profile form values
+      s.querySelector('#profile-name').value = appState.profile.name || '';
+      s.querySelector('#profile-dob').value = appState.profile.dob || '';
+      s.querySelector('#profile-conditions').value = appState.profile.conditions || '';
+      s.querySelector('#profile-emergency-contact').value = appState.profile.emergencyContact || '';
+
+      // Profile save
+      s.querySelector('#profile-form').onsubmit = (e)=>{
+        e.preventDefault();
+        appState.profile = {
+          name: s.querySelector('#profile-name').value,
+          dob: s.querySelector('#profile-dob').value,
+          conditions: s.querySelector('#profile-conditions').value,
+          emergencyContact: s.querySelector('#profile-emergency-contact').value
+        };
+        save(); renderHeader();
+        const btn = s.querySelector('#profile-form button'); const original = btn.textContent; btn.textContent = t('common.save') + '!';
+        btn.classList.add('animate-pulse'); setTimeout(()=>{ btn.textContent = original; btn.classList.remove('animate-pulse'); }, 1200);
+      };
+
+      // Export health data
+      const exportStatus = s.querySelector('#export-status');
+      s.querySelector('#export-abdm-btn').onclick = ()=>{
+        exportStatus.textContent = 'Preparing health data export…';
+        // Build csv
+        const headers = 'Date,Heart Rate,Blood Pressure,Blood Glucose,SpO2,Compliance Score\n';
+        const rows = appState.healthData.map(d => `${d.day},${appState.vitals.hr},${appState.vitals.bp},${appState.vitals.bg},${appState.vitals.spo2},${d.score}`).join('\n');
+        const csv = headers + rows;
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `health_data_${new Date().toISOString().split('T')[0]}.csv`; a.click(); URL.revokeObjectURL(url);
+        exportStatus.textContent = 'Health data exported successfully!'; setTimeout(()=> exportStatus.textContent = '', 2500);
+      };
+      s.querySelector('#export-meds-btn').onclick = ()=>{
+        exportStatus.textContent = 'Preparing medication data export…';
+        const headers = 'Date,Medication,Status\n';
+        const rows = appState.medicationHistory.flatMap(day => day.meds.map(med => `${day.date},${med},Taken`)).join('\n');
+        const csv = headers + rows;
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `medication_data_${new Date().toISOString().split('T')[0]}.csv`; a.click(); URL.revokeObjectURL(url);
+        exportStatus.textContent = 'Medication data exported successfully!'; setTimeout(()=> exportStatus.textContent = '', 2500);
+      };
+
+      // Risk Forecasting chart
+      const chartContainer = s.querySelector('#chart-container');
+      const chartLabels = s.querySelector('#chart-labels');
+      chartContainer.innerHTML = ''; chartLabels.innerHTML = '';
+      appState.healthData.slice(-7).forEach(data => {
+        const riskHeight = Math.max(8, data.risk * 2);
+        const color = data.risk < 10 ? 'color-mix(in oklab, var(--ok) 35%, transparent)' : data.risk < 20 ? 'color-mix(in oklab, var(--warn) 35%, transparent)' : 'color-mix(in oklab, var(--danger) 35%, transparent)';
+        const bar = document.createElement('div'); bar.className = 'w-10 rounded-t-lg shadow-lg flex flex-col justify-end items-center text-white font-bold text-xs cyber-border';
+        bar.style.height = riskHeight + 'px'; bar.style.background = color; bar.style.border = '1px solid var(--card-border)';
+        const riskText = document.createElement('span'); riskText.textContent = `${data.risk}%`; riskText.className = 'p-1';
+        bar.appendChild(riskText); chartContainer.appendChild(bar);
+        const label = document.createElement('div'); label.className = 'w-10 text-center'; label.textContent = data.day; chartLabels.appendChild(label);
+      });
+
+      // Share buttons
+      s.querySelector('#alert-family-btn').onclick = ()=> triggerSmartAlert('family', `Patient health compliance is at ${calculateHealthScore()}%. Just checking in.`);
+      s.querySelector('#alert-doctor-btn').onclick = ()=> triggerSmartAlert('doctor', `Secure daily report: Compliance ${calculateHealthScore()}%. Vitals: HR ${appState.vitals.hr}, BP ${appState.vitals.bp}.`);
+
+      refreshIconsSoon();
+    }
+
+    // ===================
+    // Global actions: Tasks & Alerts
+    // ===================
+    window.toggleTask = (id) => {
+      const t = appState.tasks.find(x=>x.id===id); if(!t) return; t.isChecked = !t.isChecked; save(); renderTodo(); renderHome(); renderProgress();
+      if (t.isChecked) confetti({ particleCount: 60, spread: 60, origin: { y: .8 } });
+    };
+
+    // SOS & Alerts
+    let alertTimeout=null, countdownInterval=null; const ALERT_HOLD_DURATION=3000;
+    const countdownDisplay = document.getElementById('countdown-display');
+    const sirenIcon = document.getElementById('siren-icon');
+    window.handleAlertHoldStart = (e) => {
+      e.preventDefault(); if (alertTimeout) clearTimeout(alertTimeout); if (countdownInterval) clearInterval(countdownInterval);
+      countdownDisplay.textContent='3'; countdownDisplay.classList.remove('opacity-0'); sirenIcon.classList.add('opacity-0');
+      let count=3; countdownInterval=setInterval(()=>{ count--; countdownDisplay.textContent = count>0? String(count) : ''; if(count<=0) clearInterval(countdownInterval); },1000);
+      alertTimeout = setTimeout(()=>{ countdownDisplay.classList.add('opacity-0'); sirenIcon.classList.remove('opacity-0'); triggerSmartAlert('doctor', `EMERGENCY ALERT: Patient activated SOS hold. Vitals: HR ${appState.vitals.hr}, BP ${appState.vitals.bp}.`); }, ALERT_HOLD_DURATION);
+    };
+    window.handleAlertHoldEnd = (e) => { e.preventDefault(); if(alertTimeout){clearTimeout(alertTimeout); alertTimeout=null;} if(countdownInterval){clearInterval(countdownInterval); countdownInterval=null;} countdownDisplay.classList.add('opacity-0'); sirenIcon.classList.remove('opacity-0'); };
+    window.handleAlertHoldMove = () => {};
+    window.triggerSmartAlert = (to, msg) => {
+      const status = document.getElementById('alert-status');
+      if (status) { status.textContent = `Sending to ${to==='family'?'Family':'Healthcare Provider'}...`; setTimeout(()=>{ status.textContent='Alert sent!'; setTimeout(()=>status.textContent='',2200); }, 1000); }
+      console.log(`[Smart Alert] ${to}: ${msg}`);
+    };
+
+    // ===================
+    // Page switching
+    // ===================
+    function changePage(p, btn){
+      document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
+      document.querySelector(`#page-${p}`).classList.add('active');
+      document.querySelectorAll('#bottom-nav .nav-item').forEach(el=>{el.classList.remove('active'); el.removeAttribute('aria-current');});
+      if (btn){ btn.classList.add('active'); btn.setAttribute('aria-current','page'); }
+      appState.currentPage = p; save();
+
+      // Render per-page content on navigation
+      if (p==='home') renderHome();
+      if (p==='todo') renderTodo();
+      if (p==='progress') renderProgress();
+      if (p==='settings') renderSettings();
+      refreshIconsSoon();
+    }
+    window.changePage = changePage;
+
+    function renderAllPages() {
+      renderHeader();
+      if (appState.currentPage === 'home') renderHome();
+      if (appState.currentPage === 'todo') renderTodo();
+      if (appState.currentPage === 'progress') renderProgress();
+      if (appState.currentPage === 'settings') renderSettings();
+    }
+
+    // ===================
+    // Boot
+    // ===================
+    document.addEventListener('DOMContentLoaded', ()=>{
+      setLanguage(currentLanguage);
+      renderAllPages();
+      refreshIconsSoon();
+    });
+  </script>
 </body>
 </html>

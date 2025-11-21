@@ -2,6 +2,10 @@
 ### **Compliance Optimization & Patient Adherence Support System**
 
 ---
+## Instructions to run it on your environment
+To reduce the complications we have integrated the html,css and javascript in the single file.
+i.e. home.html 
+and also the same with the login page i.e. login.html
 
 ## 📋 Project Overview
 **COMPASS** is a multilingual mobile application designed as an intelligent and gamified companion for patients managing chronic conditions such as diabetes, hypertension, and heart disease.  
